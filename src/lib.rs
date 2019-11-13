@@ -14,7 +14,7 @@ pub struct Cef {}
 
 impl Cef {
     #[cfg(unix)]
-    pub fn initialize() -> Result<Cef, Box<dyn std::error::Error>> {
+    pub fn initialize(debug_port: Option<u16>, disable_command_line_args: bool) -> Result<Cef, Box<dyn std::error::Error>> {
         use std::ffi::CString;
         use std::os::raw::{c_char, c_int};
         let args: Vec<CString> = std::env::args().map(|x| CString::new(x).unwrap()).collect();
@@ -39,12 +39,13 @@ impl Cef {
         let mut settings = cef_settings_t::default();
         settings.size = size_of::<cef_settings_t>();
         settings.no_sandbox = 1;
+        if let Some(port) = debug_port {
+            settings.remote_debugging_port = port as i32;
+        }
+        settings.command_line_args_disabled = if disable_command_line_args { 1 } else { 0 };
         if cfg!(debug_assertions) {
-            settings.command_line_args_disabled = 0;
-            settings.remote_debugging_port = 17709;
             settings.log_severity = cef_log_severity_t_LOGSEVERITY_INFO;
         } else {
-            settings.command_line_args_disabled = 1;
             settings.log_severity = cef_log_severity_t_LOGSEVERITY_ERROR;
         }
 
@@ -60,7 +61,7 @@ impl Cef {
     }
 
     #[cfg(windows)]
-    pub fn initialize() -> Result<Cef, Box<dyn std::error::Error>> {
+    pub fn initialize(debug_port: Option<u16>, disable_command_line_args: bool) -> Result<Cef, Box<dyn std::error::Error>> {
         let main_args = unsafe {
             cef_main_args_t {
                 instance: winapi::um::libloaderapi::GetModuleHandleA(null_mut())
@@ -83,12 +84,13 @@ impl Cef {
         let mut settings = cef_settings_t::default();
         settings.size = size_of::<cef_settings_t>();
         settings.no_sandbox = 1;
+        if let Some(port) = debug_port {
+            settings.remote_debugging_port = port as i32;
+        }
+        settings.command_line_args_disabled = if disable_command_line_args { 1 } else { 0 };
         if cfg!(debug_assertions) {
-            settings.command_line_args_disabled = 0;
-            settings.remote_debugging_port = 17709;
             settings.log_severity = cef_log_severity_t_LOGSEVERITY_INFO;
         } else {
-            settings.command_line_args_disabled = 1;
             settings.log_severity = cef_log_severity_t_LOGSEVERITY_ERROR;
         }
 
