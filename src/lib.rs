@@ -14,7 +14,10 @@ pub struct Cef {}
 
 impl Cef {
     #[cfg(unix)]
-    pub fn initialize(debug_port: Option<u16>, disable_command_line_args: bool) -> Result<Cef, Box<dyn std::error::Error>> {
+    pub fn initialize(
+        debug_port: Option<u16>,
+        disable_command_line_args: bool,
+    ) -> Result<Cef, Box<dyn std::error::Error>> {
         use std::ffi::CString;
         use std::os::raw::{c_char, c_int};
         let args: Vec<CString> = std::env::args().map(|x| CString::new(x).unwrap()).collect();
@@ -61,7 +64,10 @@ impl Cef {
     }
 
     #[cfg(windows)]
-    pub fn initialize(debug_port: Option<u16>, disable_command_line_args: bool) -> Result<Cef, Box<dyn std::error::Error>> {
+    pub fn initialize(
+        debug_port: Option<u16>,
+        disable_command_line_args: bool,
+    ) -> Result<Cef, Box<dyn std::error::Error>> {
         let main_args = unsafe {
             cef_main_args_t {
                 instance: winapi::um::libloaderapi::GetModuleHandleA(null_mut())

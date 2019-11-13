@@ -4,10 +4,11 @@ use std::os::raw::{c_int, c_void};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
-    cef_base_ref_counted_t, cef_client_t, cef_context_menu_handler_t, cef_life_span_handler_t,
-    cef_request_handler_t,
+    cef_base_ref_counted_t, cef_client_t, cef_context_menu_handler_t, cef_display_handler_t,
+    cef_life_span_handler_t, cef_request_handler_t,
 };
 use super::context_menu_handler::{self, ContextMenuHandler};
+use super::display_handler::{self, DisplayHandler};
 use super::life_span_handler::{self, LifeSpanHandler};
 use super::request_handler::{self, RequestHandler};
 
@@ -19,6 +20,7 @@ pub struct Client {
     life_span_handler: *mut LifeSpanHandler,
     context_menu_handler: *mut ContextMenuHandler,
     request_handler: *mut RequestHandler,
+    display_handler: *mut DisplayHandler,
 }
 
 impl Client {
@@ -30,19 +32,29 @@ impl Client {
 extern "C" fn get_life_span_handler(slf: *mut cef_client_t) -> *mut cef_life_span_handler_t {
     let client = slf as *mut Client;
     let handler = unsafe { (*client).life_span_handler };
+    unsafe { (*handler).inc_ref() };
     handler as *mut cef_life_span_handler_t
 }
 
 extern "C" fn get_context_menu_handler(slf: *mut cef_client_t) -> *mut cef_context_menu_handler_t {
     let client = slf as *mut Client;
     let handler = unsafe { (*client).context_menu_handler };
+    unsafe { (*handler).inc_ref() };
     handler as *mut cef_context_menu_handler_t
 }
 
 extern "C" fn get_request_handler(slf: *mut cef_client_t) -> *mut cef_request_handler_t {
     let client = slf as *mut Client;
     let handler = unsafe { (*client).request_handler };
+    unsafe { (*handler).inc_ref() };
     handler as *mut cef_request_handler_t
+}
+
+extern "C" fn get_display_handler(slf: *mut cef_client_t) -> *mut cef_display_handler_t {
+    let client = slf as *mut Client;
+    let handler = unsafe { (*client).display_handler };
+    unsafe { (*handler).inc_ref() };
+    handler as *mut cef_display_handler_t
 }
 
 pub fn allocate() -> *mut Client {
@@ -63,6 +75,9 @@ pub fn allocate() -> *mut Client {
 
         (*client).request_handler = request_handler::allocate();
         (*client).client.get_request_handler = Some(get_request_handler);
+
+        (*client).display_handler = display_handler::allocate();
+        (*client).client.get_display_handler = Some(get_display_handler);
     };
 
     client
@@ -71,9 +86,6 @@ pub fn allocate() -> *mut Client {
 extern "C" fn add_ref(base: *mut cef_base_ref_counted_t) {
     let client = base as *mut Client;
     unsafe {
-        (*(*client).life_span_handler).inc_ref();
-        (*(*client).context_menu_handler).inc_ref();
-        (*(*client).request_handler).inc_ref();
         (*client).ref_count.fetch_add(1, Ordering::SeqCst);
     }
 }

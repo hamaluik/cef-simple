@@ -4,11 +4,13 @@ use simplelog::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cef = Cef::initialize(None, true)?;
 
-    CombinedLogger::init(
-        vec![
-            TermLogger::new(LevelFilter::Trace, Config::default(), TerminalMode::Mixed).unwrap(),
-        ]
-    ).unwrap();
+    CombinedLogger::init(vec![TermLogger::new(
+        LevelFilter::Trace,
+        Config::default(),
+        TerminalMode::Mixed,
+    )
+    .unwrap()])
+    .unwrap();
 
     let page = include_str!("page.html");
 
