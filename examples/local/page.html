@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Local</title>
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+        <button id="toggle-fs">Toggle Fullscreen</button>
+        <button id="logit">Log It</button>
+        <script>
+            let toggleFS = document.getElementById("toggle-fs");
+            toggleFS.onclick = function() {
+                if(document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+                else {
+                    document.body.requestFullscreen();
+                }
+            };
+
+            let logit = document.getElementById("logit");
+            logit.onclick = function() {
+                console.info("log it!");
+            };
+        </script>
+    </body>
+</html>
