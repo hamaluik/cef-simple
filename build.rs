@@ -48,6 +48,7 @@ fn main() {
             .whitelist_type("cef_browser_t")
             .whitelist_type("cef_context_menu_handler_t")
             .whitelist_type("cef_context_menu_params_t")
+            .whitelist_type("cef_display_handler_t")
             .whitelist_type("cef_frame_t")
             .whitelist_type("cef_menu_model_t")
             .whitelist_type("cef_life_span_handler_t")
