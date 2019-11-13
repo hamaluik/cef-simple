@@ -4,17 +4,7 @@ use std::path::PathBuf;
 fn main() {
     // let us link the proper CEF version depending on what host we're compiling for
     let target_os = env::var("TARGET").expect("target");
-    let cef_path = match target_os.as_ref() {
-        "x86_64-pc-windows-msvc" => {
-            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("cef-x86_64-windows")
-        }
-        "x86_64-unknown-linux-gnu" => {
-            PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()).join("cef-x86_64-linux")
-        }
-        _ => unimplemented!(),
-    };
-    /*let cef_path = env::var("CEF_PATH").expect("environment variable CEF_PATH should point to the CEF distribution");
-    let cef_path = PathBuf::from(cef_path);*/
+    let cef_path: PathBuf = env::var("CEF_PATH").map(From::from).expect("environment variable CEF_PATH should point to the CEF distribution");
     assert!(cef_path.exists());
     let cef_lib_path = cef_path.join("Release");
     let cef_lib_name = match target_os.as_ref() {

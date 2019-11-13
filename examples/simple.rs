@@ -1,7 +1,7 @@
 use cef_simple::{Cef, WindowOptions};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cef = Cef::initialize()?;
+    let cef = Cef::initialize(None, true)?;
 
     cef.open_window(WindowOptions {
         url: "https://www.rust-lang.org/".to_owned(),
