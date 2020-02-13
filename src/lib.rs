@@ -40,7 +40,7 @@ impl Cef {
         }
 
         let mut settings = cef_settings_t::default();
-        settings.size = size_of::<cef_settings_t>();
+        settings.size = size_of::<cef_settings_t>() as u64;
         settings.no_sandbox = 1;
         if let Some(port) = debug_port {
             settings.remote_debugging_port = port as i32;
@@ -112,7 +112,7 @@ impl Cef {
     }
 
     pub fn open_window(&self, options: WindowOptions) -> Result<(), Box<dyn std::error::Error>> {
-        let window_delegate = window_delegate::allocate(options);
+        let window_delegate = unsafe { window_delegate::allocate(options) };
         log::debug!("creating window");
         let _window = unsafe {
             (*window_delegate).inc_ref();

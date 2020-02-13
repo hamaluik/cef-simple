@@ -12,11 +12,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .unwrap()])
     .unwrap();
 
-    let page = include_str!("page.html");
+    let page = urlencoding::encode(include_str!("page.html"));
 
     cef.open_window(WindowOptions {
         url: format!("data:text/html,{}", page),
-        title: Some("CEF Simple".to_string()),
+        title: Some("CEF Simple—Printing Demo".to_string()),
         window_icon: Some(include_bytes!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/icon.png"

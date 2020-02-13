@@ -1,9 +1,8 @@
-use libc::{calloc, free};
 use std::mem::size_of;
-use std::os::raw::{c_int, c_void};
+use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{cef_base_ref_counted_t, cef_browser_view_delegate_t};
+use super::bindings::{cef_base_ref_counted_t, cef_browser_view_delegate_t, cef_view_delegate_t};
 
 #[derive(Debug)]
 #[repr(C)]
@@ -19,40 +18,34 @@ impl BrowserViewDelegate {
 }
 
 pub fn allocate() -> *mut BrowserViewDelegate {
-    let browser_view_delegate =
-        unsafe { calloc(1, size_of::<BrowserViewDelegate>()) as *mut BrowserViewDelegate };
-    unsafe {
-        (*browser_view_delegate)
-            .browser_view_delegate
-            .base
-            .base
-            .size = size_of::<BrowserViewDelegate>();
-        (*browser_view_delegate)
-            .ref_count
-            .store(1, Ordering::SeqCst);
-        (*browser_view_delegate)
-            .browser_view_delegate
-            .base
-            .base
-            .add_ref = Some(add_ref);
-        (*browser_view_delegate)
-            .browser_view_delegate
-            .base
-            .base
-            .release = Some(release);
-        (*browser_view_delegate)
-            .browser_view_delegate
-            .base
-            .base
-            .has_one_ref = Some(has_one_ref);
-        (*browser_view_delegate)
-            .browser_view_delegate
-            .base
-            .base
-            .has_at_least_one_ref = Some(has_at_least_one_ref);
+    let browser_view = BrowserViewDelegate {
+        browser_view_delegate: cef_browser_view_delegate_t {
+            base: cef_view_delegate_t {
+                base: cef_base_ref_counted_t {
+                    size: size_of::<BrowserViewDelegate>() as u64,
+                    add_ref: Some(add_ref),
+                    release: Some(release),
+                    has_one_ref: Some(has_one_ref),
+                    has_at_least_one_ref: Some(has_at_least_one_ref),
+                },
+                get_preferred_size: None,
+                get_minimum_size: None,
+                get_maximum_size: None,
+                get_height_for_width: None,
+                on_parent_view_changed: None,
+                on_child_view_changed: None,
+                on_focus: None,
+                on_blur: None,
+            },
+            on_browser_created: None,
+            on_browser_destroyed: None,
+            get_delegate_for_popup_browser_view: None,
+            on_popup_browser_view_created: None,
+        },
+        ref_count: AtomicUsize::new(1),
     };
 
-    browser_view_delegate
+    Box::into_raw(Box::from(browser_view))
 }
 
 extern "C" fn add_ref(base: *mut cef_base_ref_counted_t) {
@@ -75,7 +68,7 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            free(browser_view_delegate as *mut c_void);
+            Box::from_raw(browser_view_delegate as *mut BrowserViewDelegate);
         }
         1
     } else {

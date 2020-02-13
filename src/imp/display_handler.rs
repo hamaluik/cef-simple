@@ -1,6 +1,5 @@
-use libc::{calloc, free};
 use std::mem::size_of;
-use std::os::raw::{c_int, c_void};
+use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
@@ -22,14 +21,6 @@ impl DisplayHandler {
     }
 }
 
-extern "C" fn on_fullscreen_mode_change(
-    _slf: *mut cef_display_handler_t,
-    _browser: *mut cef_browser_t,
-    fullscreen: i32,
-) {
-    eprintln!("on_fullscreen_mode_change: {}", fullscreen);
-}
-
 extern "C" fn on_console_message(
     _slf: *mut cef_display_handler_t,
     _browser: *mut cef_browser_t,
@@ -39,7 +30,7 @@ extern "C" fn on_console_message(
     _line: i32,
 ) -> i32 {
     let chars: *mut u16 = unsafe { (*message).str };
-    let len: usize = unsafe { (*message).length };
+    let len: usize = unsafe { (*message).length } as usize;
     let chars = unsafe { std::slice::from_raw_parts(chars, len) };
     let message = std::char::decode_utf16(chars.iter().cloned())
         .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
@@ -60,21 +51,29 @@ extern "C" fn on_console_message(
 }
 
 pub fn allocate() -> *mut DisplayHandler {
-    let display_handler = unsafe { calloc(1, size_of::<DisplayHandler>()) as *mut DisplayHandler };
-    unsafe {
-        (*display_handler).display_handler.base.size = size_of::<DisplayHandler>();
-        (*display_handler).ref_count.store(1, Ordering::SeqCst);
-        (*display_handler).display_handler.base.add_ref = Some(add_ref);
-        (*display_handler).display_handler.base.release = Some(release);
-        (*display_handler).display_handler.base.has_one_ref = Some(has_one_ref);
-        (*display_handler).display_handler.base.has_at_least_one_ref = Some(has_at_least_one_ref);
-
-        (*display_handler).display_handler.on_fullscreen_mode_change =
-            Some(on_fullscreen_mode_change);
-        (*display_handler).display_handler.on_console_message = Some(on_console_message);
+    let handler = DisplayHandler {
+        display_handler: cef_display_handler_t {
+            base: cef_base_ref_counted_t {
+                size: size_of::<DisplayHandler>() as u64,
+                add_ref: Some(add_ref),
+                release: Some(release),
+                has_one_ref: Some(has_one_ref),
+                has_at_least_one_ref: Some(has_at_least_one_ref),
+            },
+            on_address_change: None,
+            on_title_change: None,
+            on_favicon_urlchange: None,
+            on_fullscreen_mode_change: None,
+            on_tooltip: None,
+            on_status_message: None,
+            on_console_message: Some(on_console_message),
+            on_auto_resize: None,
+            on_loading_progress_change: None,
+        },
+        ref_count: AtomicUsize::new(1),
     };
 
-    display_handler
+    Box::into_raw(Box::from(handler))
 }
 
 extern "C" fn add_ref(base: *mut cef_base_ref_counted_t) {
@@ -88,7 +87,7 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            free(display_handler as *mut c_void);
+            Box::from_raw(display_handler);
         }
         1
     } else {

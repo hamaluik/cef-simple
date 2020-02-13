@@ -1,15 +1,14 @@
-use libc::{calloc, free};
 use std::ffi::CString;
 use std::mem::size_of;
-use std::os::raw::{c_int, c_void};
+use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
     cef_base_ref_counted_t, cef_browser_settings_t, cef_browser_view_create,
     cef_browser_view_delegate_t, cef_client_t, cef_dictionary_value_create, cef_image_create,
-    cef_image_t, cef_panel_t, cef_request_context_get_global_context, cef_size_t,
-    cef_state_t_STATE_DISABLED, cef_string_t, cef_string_utf8_to_utf16, cef_view_t,
-    cef_window_delegate_t, cef_window_t,
+    cef_image_t, cef_panel_delegate_t, cef_panel_t, cef_request_context_get_global_context,
+    cef_size_t, cef_state_t_STATE_DISABLED, cef_string_t, cef_string_utf8_to_utf16,
+    cef_view_delegate_t, cef_view_t, cef_window_delegate_t, cef_window_t,
 };
 use super::{browser_view_delegate, client};
 
@@ -27,11 +26,11 @@ pub struct WindowOptions {
 impl Default for WindowOptions {
     fn default() -> WindowOptions {
         WindowOptions {
-            url: "https://google.com/".to_string(),
+            url: "https://hamaluik.ca/".to_string(),
             title: None,
             maximized: false,
             fullscreen: false,
-            size: Some((640, 480)),
+            size: Some((1280, 720)),
             window_icon: None,
             window_app_icon: None,
         }
@@ -82,7 +81,7 @@ extern "C" fn window_delegate_created(slf: *mut cef_window_delegate_t, window: *
     unsafe {
         let url = (*window_delegate).options.url.as_bytes();
         let url = CString::new(url).unwrap();
-        cef_string_utf8_to_utf16(url.as_ptr(), url.to_bytes().len(), &mut cef_url);
+        cef_string_utf8_to_utf16(url.as_ptr(), url.to_bytes().len() as u64, &mut cef_url);
     }
 
     let mut browser_settings = cef_browser_settings_t::default();
@@ -119,7 +118,11 @@ extern "C" fn window_delegate_created(slf: *mut cef_window_delegate_t, window: *
             let mut cef_title = cef_string_t::default();
             let title = title.as_bytes();
             let title = CString::new(title).unwrap();
-            cef_string_utf8_to_utf16(title.as_ptr(), title.to_bytes().len(), &mut cef_title);
+            cef_string_utf8_to_utf16(
+                title.as_ptr(),
+                title.to_bytes().len() as u64,
+                &mut cef_title,
+            );
 
             (*window).set_title.unwrap()(window, &cef_title);
         }
@@ -150,54 +153,62 @@ extern "C" fn window_delegate_created(slf: *mut cef_window_delegate_t, window: *
     }
 }
 
-pub fn allocate(options: WindowOptions) -> *mut WindowDelegate {
-    let window_delegate = unsafe { calloc(1, size_of::<WindowDelegate>()) as *mut WindowDelegate };
-    unsafe {
-        (*window_delegate).window_delegate.base.base.base.size = size_of::<WindowDelegate>();
-        (*window_delegate).ref_count.store(1, Ordering::SeqCst);
-
-        if let Some(data) = options.window_icon {
-            let image = cef_image_create();
-            (*image).add_png.unwrap()(image, 1.0, data.as_ptr() as *const c_void, data.len());
-            (*window_delegate).window_icon = Some(image);
-        } else {
-            (*window_delegate).window_icon = None;
-        }
-
-        if let Some(data) = options.window_app_icon {
-            let image = cef_image_create();
-            (*image).add_png.unwrap()(image, 1.0, data.as_ptr() as *const c_void, data.len());
-            (*window_delegate).window_app_icon = Some(image);
-        } else {
-            (*window_delegate).window_app_icon = None;
-        }
-
-        (*window_delegate).options = options;
-
-        (*window_delegate).window_delegate.base.base.base.add_ref = Some(add_ref);
-        (*window_delegate).window_delegate.base.base.base.release = Some(release);
-        (*window_delegate)
-            .window_delegate
-            .base
-            .base
-            .base
-            .has_one_ref = Some(has_one_ref);
-        (*window_delegate)
-            .window_delegate
-            .base
-            .base
-            .base
-            .has_at_least_one_ref = Some(has_at_least_one_ref);
-
-        (*window_delegate).window_delegate.on_window_created = Some(window_delegate_created);
-        (*window_delegate).window_delegate.is_frameless = Some(is_frameless);
-        (*window_delegate).window_delegate.can_resize = Some(can_resize);
-        (*window_delegate).window_delegate.can_maximize = Some(can_maximize);
-        (*window_delegate).window_delegate.can_minimize = Some(can_minimize);
-        (*window_delegate).window_delegate.can_close = Some(can_close);
+pub unsafe fn allocate(options: WindowOptions) -> *mut WindowDelegate {
+    let window_icon = if let Some(data) = options.window_icon {
+        let image = cef_image_create();
+        (*image).add_png.unwrap()(image, 1.0, data.as_ptr() as *const _, data.len() as u64);
+        Some(image)
+    } else {
+        None
     };
 
-    window_delegate
+    let window_app_icon = if let Some(data) = options.window_app_icon {
+        let image = cef_image_create();
+        (*image).add_png.unwrap()(image, 1.0, data.as_ptr() as *const _, data.len() as u64);
+        Some(image)
+    } else {
+        None
+    };
+
+    let window_delegate = WindowDelegate {
+        window_delegate: cef_window_delegate_t {
+            base: cef_panel_delegate_t {
+                base: cef_view_delegate_t {
+                    base: cef_base_ref_counted_t {
+                        size: size_of::<WindowDelegate>() as u64,
+                        add_ref: Some(add_ref),
+                        release: Some(release),
+                        has_one_ref: Some(has_one_ref),
+                        has_at_least_one_ref: Some(has_at_least_one_ref),
+                    },
+                    get_preferred_size: None,
+                    get_minimum_size: None,
+                    get_maximum_size: None,
+                    get_height_for_width: None,
+                    on_parent_view_changed: None,
+                    on_child_view_changed: None,
+                    on_focus: None,
+                    on_blur: None,
+                },
+            },
+            on_window_created: Some(window_delegate_created),
+            on_window_destroyed: None,
+            get_parent_window: None,
+            is_frameless: Some(is_frameless),
+            can_resize: Some(can_resize),
+            can_maximize: Some(can_maximize),
+            can_minimize: Some(can_minimize),
+            can_close: Some(can_close),
+            on_accelerator: None,
+            on_key_event: None,
+        },
+        ref_count: AtomicUsize::new(1),
+        options,
+        window_icon,
+        window_app_icon,
+    };
+
+    Box::into_raw(Box::from(window_delegate))
 }
 
 extern "C" fn add_ref(base: *mut cef_base_ref_counted_t) {
@@ -213,14 +224,7 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            if let Some(icon) = (*window_delegate).window_icon {
-                free(icon as *mut c_void);
-            }
-            if let Some(icon) = (*window_delegate).window_app_icon {
-                free(icon as *mut c_void);
-            }
-
-            free(window_delegate as *mut c_void);
+            Box::from_raw(window_delegate);
         }
         1
     } else {

@@ -1,6 +1,5 @@
-use libc::{calloc, free};
 use std::mem::size_of;
-use std::os::raw::{c_int, c_void};
+use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
@@ -8,7 +7,6 @@ use super::bindings::{
     cef_frame_t, cef_menu_model_t,
 };
 
-#[derive(Debug)]
 #[repr(C)]
 pub struct ContextMenuHandler {
     context_menu_handler: cef_context_menu_handler_t,
@@ -35,28 +33,24 @@ extern "C" fn on_before_context_menu(
 }
 
 pub fn allocate() -> *mut ContextMenuHandler {
-    let context_menu_handler =
-        unsafe { calloc(1, size_of::<ContextMenuHandler>()) as *mut ContextMenuHandler };
-    unsafe {
-        (*context_menu_handler).context_menu_handler.base.size = size_of::<ContextMenuHandler>();
-        (*context_menu_handler).ref_count.store(1, Ordering::SeqCst);
-        (*context_menu_handler).context_menu_handler.base.add_ref = Some(add_ref);
-        (*context_menu_handler).context_menu_handler.base.release = Some(release);
-        (*context_menu_handler)
-            .context_menu_handler
-            .base
-            .has_one_ref = Some(has_one_ref);
-        (*context_menu_handler)
-            .context_menu_handler
-            .base
-            .has_at_least_one_ref = Some(has_at_least_one_ref);
-
-        (*context_menu_handler)
-            .context_menu_handler
-            .on_before_context_menu = Some(on_before_context_menu);
+    let handler = ContextMenuHandler {
+        context_menu_handler: cef_context_menu_handler_t {
+            base: cef_base_ref_counted_t {
+                size: size_of::<ContextMenuHandler>() as u64,
+                add_ref: Some(add_ref),
+                release: Some(release),
+                has_one_ref: Some(has_one_ref),
+                has_at_least_one_ref: Some(has_at_least_one_ref),
+            },
+            on_before_context_menu: Some(on_before_context_menu),
+            run_context_menu: None,
+            on_context_menu_command: None,
+            on_context_menu_dismissed: None,
+        },
+        ref_count: AtomicUsize::new(1),
     };
 
-    context_menu_handler
+    Box::into_raw(Box::from(handler))
 }
 
 extern "C" fn add_ref(base: *mut cef_base_ref_counted_t) {
@@ -79,7 +73,7 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            free(context_menu_handler as *mut c_void);
+            Box::from_raw(context_menu_handler);
         }
         1
     } else {

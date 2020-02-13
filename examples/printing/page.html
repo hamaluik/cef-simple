@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CEF Print Demo</title>
+        <style>
+            #time {
+                display: None;
+            }
+            @media print {
+                html, body {
+                    background: black;
+                    width: 100%;
+                    height: 100%;
+                    margin: 0;
+                    padding: 0;
+                }
+                a {
+                    text-decoration: underline;
+                }
+                a, p {
+                    color: white;
+                }
+                #time {
+                    display: block;
+                }
+            }
+        </style>
+        <script>
+            function doPrint() {
+                var timeElement = document.getElementById("time");
+                cef.saveFileDialog("Save As PDF", "printed_pdf.pdf", "PDF Files|.pdf")
+                .then((path) => {
+                    timeElement.innerText = "This page was printed at " + (new Date()).toLocaleString();
+                    console.info("saving PDF to path:");
+                    console.info(path);
+                    return cef.printToPDF(path);
+                })
+                .then(() => {
+                    timeElement.innerText = "";
+                    console.log('done printing!');
+                })
+                .catch(() => console.error('failed to print!'));
+            }
+        </script>
+    </head>
+    <body>
+        <script>
+        </script>
+        <p>
+            <a href="#" onclick="doPrint(); return false;">Click here</a> to print to PDF, or <a href="#" onclick="window.print(); return false;">here</a> to print normally.
+        </p>
+        <p id="time"></p>
+    </body>
+</html>
