@@ -125,7 +125,8 @@ unsafe extern "C" fn on_process_message_received(
         );
 
         1
-    } else if message_name == "save_file_dialog" {
+    }
+    else if message_name == "save_file_dialog" || message_name == "open_file_dialog" {
         let args = ((*message)
             .get_argument_list
             .expect("get_argument_list is a function"))(message);
@@ -163,17 +164,21 @@ unsafe extern "C" fn on_process_message_received(
             .collect::<String>();
         cef_string_userfree_utf16_free(cef_filter);
 
-        super::browser::save_file_dialog(
+        super::browser::run_file_dialog(
             browser,
+            match message_name.as_ref() {
+                "open_file_dialog" => super::v8_file_dialog_handler::FileDialogMode::Open,
+                "save_file_dialog" => super::v8_file_dialog_handler::FileDialogMode::Save,
+                _ => unreachable!()
+            },
             title,
             initial_file_name,
             filter,
             Some(Box::from(move |path: Option<std::path::PathBuf>| {
-                log::debug!("client save callback");
                 // now send an IPC message back to the renderer
                 // convert the message name to a CEF string
                 let mut cef_message_name = cef_string_t::default();
-                let message_name = "save_file_dialog_done".as_bytes();
+                let message_name = "run_file_dialog_done".as_bytes();
                 let message_name = std::ffi::CString::new(message_name).unwrap();
                 super::bindings::cef_string_utf8_to_utf16(
                     message_name.as_ptr(),

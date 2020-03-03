@@ -56,8 +56,9 @@ pub unsafe fn print_to_pdf<P: AsRef<std::path::Path>>(
     );
 }
 
-pub unsafe fn save_file_dialog(
+pub unsafe fn run_file_dialog(
     browser: *mut cef_browser_t,
+    mode: super::v8_file_dialog_handler::FileDialogMode,
     title: String,
     initial_file_name: String,
     filter: String,
@@ -110,7 +111,10 @@ pub unsafe fn save_file_dialog(
         .run_file_dialog
         .expect("run_file_dialog is a function")(
         host,
-        super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_SAVE,
+        match mode {
+            super::v8_file_dialog_handler::FileDialogMode::Open => super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_OPEN,
+            super::v8_file_dialog_handler::FileDialogMode::Save => super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_SAVE,
+        },
         &cef_title,
         &cef_initial_file_name,
         filters,
