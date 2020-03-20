@@ -88,7 +88,7 @@ impl Cef {
         }
 
         let mut settings = cef_settings_t::default();
-        settings.size = size_of::<cef_settings_t>();
+        settings.size = size_of::<cef_settings_t>() as u64;
         settings.no_sandbox = 1;
         if let Some(port) = debug_port {
             settings.remote_debugging_port = port as i32;
