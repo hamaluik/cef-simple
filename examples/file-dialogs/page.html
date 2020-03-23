@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CEF File Dialogs Demo</title>
+        <script>
+            function handleOpen() {
+                cef.openFileDialog("Open", null, "Text Files|.txt")
+                .then((path) => {
+                    console.info("chosen path:");
+                    console.info(path);
+                })
+                .catch((error) => console.error("failed to run save dialog:", error));
+            }
+            function handleSave() {
+                cef.openFileDialog("Save", null, "Text Files|.txt")
+                .then((path) => {
+                    console.info("chosen path:");
+                    console.info(path);
+                })
+                .catch((error) => console.error("failed to run save dialog:", error));
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="handleOpen(); return false;">Open</button>&nbsp;<button onclick="handleSave(); return false;">Save</button>
+    </body>
+</html>

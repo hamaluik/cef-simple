@@ -125,44 +125,64 @@ unsafe extern "C" fn on_process_message_received(
         );
 
         1
-    }
-    else if message_name == "save_file_dialog" || message_name == "open_file_dialog" {
+    } else if message_name == "save_file_dialog" || message_name == "open_file_dialog" {
         let args = ((*message)
             .get_argument_list
             .expect("get_argument_list is a function"))(message);
 
+        let num_args = (*args).get_size.expect("get_size is a function")(args);
+        debug_assert_eq!(num_args, 3);
+
         // get the title
         let cef_title: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 0);
-        let chars: *mut u16 = (*cef_title).str;
-        let len: usize = (*cef_title).length as usize;
-        let chars = std::slice::from_raw_parts(chars, len);
-        let title = std::char::decode_utf16(chars.iter().cloned())
-            .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
-            .collect::<String>();
-        cef_string_userfree_utf16_free(cef_title);
+        let title: String = if cef_title == std::ptr::null_mut() {
+            let chars: *mut u16 = (*cef_title).str;
+            let len: usize = (*cef_title).length as usize;
+            let chars = std::slice::from_raw_parts(chars, len);
+            let title = std::char::decode_utf16(chars.iter().cloned())
+                .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
+                .collect::<String>();
+            cef_string_userfree_utf16_free(cef_title);
+            title
+        }
+        else {
+            "".to_owned()
+        };
 
         // get the initial_file_name
         let cef_initial_file_name: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 1);
-        let chars: *mut u16 = (*cef_initial_file_name).str;
-        let len: usize = (*cef_initial_file_name).length as usize;
-        let chars = std::slice::from_raw_parts(chars, len);
-        let initial_file_name = std::char::decode_utf16(chars.iter().cloned())
-            .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
-            .collect::<String>();
-        cef_string_userfree_utf16_free(cef_initial_file_name);
+        let initial_file_name: String = if cef_initial_file_name == std::ptr::null_mut() {
+            "".to_owned()
+        }
+        else {
+            let chars: *mut u16 = (*cef_initial_file_name).str;
+            let len: usize = (*cef_initial_file_name).length as usize;
+            let chars = std::slice::from_raw_parts(chars, len);
+            let initial_file_name = std::char::decode_utf16(chars.iter().cloned())
+                .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
+                .collect::<String>();
+            cef_string_userfree_utf16_free(cef_initial_file_name);
+            initial_file_name
+        };
 
         // get the filter
         let cef_filter: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 2);
-        let chars: *mut u16 = (*cef_filter).str;
-        let len: usize = (*cef_filter).length as usize;
-        let chars = std::slice::from_raw_parts(chars, len);
-        let filter = std::char::decode_utf16(chars.iter().cloned())
-            .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
-            .collect::<String>();
-        cef_string_userfree_utf16_free(cef_filter);
+        let filter: String = if cef_filter == std::ptr::null_mut() {
+            let chars: *mut u16 = (*cef_filter).str;
+            let len: usize = (*cef_filter).length as usize;
+            let chars = std::slice::from_raw_parts(chars, len);
+            let filter = std::char::decode_utf16(chars.iter().cloned())
+                .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
+                .collect::<String>();
+            cef_string_userfree_utf16_free(cef_filter);
+            filter
+        }
+        else {
+            "".to_owned()
+        };
 
         super::browser::run_file_dialog(
             browser,
@@ -175,6 +195,7 @@ unsafe extern "C" fn on_process_message_received(
             initial_file_name,
             filter,
             Some(Box::from(move |path: Option<std::path::PathBuf>| {
+                log::debug!("client save callback");
                 // now send an IPC message back to the renderer
                 // convert the message name to a CEF string
                 let mut cef_message_name = cef_string_t::default();

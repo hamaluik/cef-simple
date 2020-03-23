@@ -1,11 +1,11 @@
-use super::bindings::{
-    _cef_run_file_dialog_callback_t, cef_base_ref_counted_t, cef_string_list_size,
-    cef_string_list_t, cef_string_list_value, cef_string_userfree_t,
-    cef_string_userfree_utf16_alloc, cef_string_userfree_utf16_free,
-};
 use std::mem::size_of;
-use std::os::raw::c_int;
+use std::os::raw::{c_int};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use super::bindings::{
+    cef_base_ref_counted_t, _cef_run_file_dialog_callback_t, cef_string_list_t,
+    cef_string_list_value, cef_string_list_size, cef_string_userfree_utf16_alloc,
+    cef_string_userfree_t, cef_string_userfree_utf16_free,
+};
 
 #[repr(C)]
 pub struct RunFileDialogCallback {
@@ -14,18 +14,15 @@ pub struct RunFileDialogCallback {
     on_done: Option<Box<dyn FnMut(Option<std::path::PathBuf>)>>,
 }
 
-unsafe extern "C" fn on_file_dialog_dismissed(
-    slf: *mut _cef_run_file_dialog_callback_t,
-    _selected_accept_filter: c_int,
-    file_paths: cef_string_list_t,
-) {
+unsafe extern "C" fn on_file_dialog_dismissed(slf: *mut _cef_run_file_dialog_callback_t, _selected_accept_filter: c_int, file_paths: cef_string_list_t) {
     let callback = slf as *mut RunFileDialogCallback;
     if let Some(on_done) = &mut (*callback).on_done {
         // if they cancelled, file_paths will be null, so alert as much
         if file_paths == std::ptr::null_mut() || cef_string_list_size(file_paths) < 1 {
             log::debug!("user cancelled file dialog");
             on_done(None);
-        } else {
+        }
+        else {
             // extract the first string from the list (only support a single string for now)
             let cef_path: cef_string_userfree_t = cef_string_userfree_utf16_alloc();
             if cef_string_list_value(file_paths, 0, cef_path) != 1 {
@@ -46,14 +43,13 @@ unsafe extern "C" fn on_file_dialog_dismissed(
             // and alert our listener
             on_done(Some(std::path::PathBuf::from(path)));
         }
-    } else {
+    }
+    else {
         log::warn!("no callback registered for run file dialog callback, is this intentional?");
     }
 }
 
-pub fn allocate(
-    on_done: Option<Box<dyn FnMut(Option<std::path::PathBuf>)>>,
-) -> *mut RunFileDialogCallback {
+pub fn allocate(on_done: Option<Box<dyn FnMut(Option<std::path::PathBuf>)>>) -> *mut RunFileDialogCallback {
     let handler = RunFileDialogCallback {
         run_file_dialog_callback: _cef_run_file_dialog_callback_t {
             base: cef_base_ref_counted_t {
@@ -110,9 +106,7 @@ extern "C" fn has_one_ref_run_file_dialog_callback(base: *mut cef_base_ref_count
     }
 }
 
-extern "C" fn has_at_least_one_ref_run_file_dialog_callback(
-    base: *mut cef_base_ref_counted_t,
-) -> c_int {
+extern "C" fn has_at_least_one_ref_run_file_dialog_callback(base: *mut cef_base_ref_counted_t) -> c_int {
     let life_span_handler = base as *mut RunFileDialogCallback;
     let count = unsafe { (*life_span_handler).ref_count.load(Ordering::SeqCst) };
     if count >= 1 {
