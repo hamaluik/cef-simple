@@ -89,7 +89,7 @@ extern "C" fn window_delegate_created(slf: *mut cef_window_delegate_t, window: *
     browser_settings.local_storage = cef_state_t_STATE_DISABLED;
     browser_settings.application_cache = cef_state_t_STATE_DISABLED;
 
-    let client = client::allocate();
+    let client = client::allocate(window);
     let browser_view_delegate = browser_view_delegate::allocate();
 
     let browser_view = unsafe {

@@ -6,7 +6,7 @@ use super::bindings::{
     cef_base_ref_counted_t, cef_browser_t, cef_client_t, cef_context_menu_handler_t,
     cef_display_handler_t, cef_frame_t, cef_life_span_handler_t, cef_process_id_t,
     cef_process_message_t, cef_request_handler_t, cef_string_t, cef_string_userfree_t,
-    cef_string_userfree_utf16_free,
+    cef_string_userfree_utf16_free, cef_window_t,
 };
 use super::context_menu_handler::{self, ContextMenuHandler};
 use super::display_handler::{self, DisplayHandler};
@@ -225,7 +225,7 @@ unsafe extern "C" fn on_process_message_received(
     }
 }
 
-pub fn allocate() -> *mut Client {
+pub fn allocate(window: *mut cef_window_t) -> *mut Client {
     let client = Client {
         client: cef_client_t {
             base: cef_base_ref_counted_t {
@@ -254,7 +254,7 @@ pub fn allocate() -> *mut Client {
         life_span_handler: life_span_handler::allocate(),
         context_menu_handler: context_menu_handler::allocate(),
         request_handler: request_handler::allocate(),
-        display_handler: display_handler::allocate(),
+        display_handler: display_handler::allocate(window),
     };
 
     Box::into_raw(Box::from(client))

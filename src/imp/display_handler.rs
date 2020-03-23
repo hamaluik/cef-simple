@@ -6,19 +6,29 @@ use super::bindings::{
     cef_base_ref_counted_t, cef_browser_t, cef_display_handler_t, cef_log_severity_t,
     cef_log_severity_t_LOGSEVERITY_DEBUG, cef_log_severity_t_LOGSEVERITY_DEFAULT,
     cef_log_severity_t_LOGSEVERITY_ERROR, cef_log_severity_t_LOGSEVERITY_FATAL,
-    cef_log_severity_t_LOGSEVERITY_INFO, cef_log_severity_t_LOGSEVERITY_WARNING, cef_string_t,
+    cef_log_severity_t_LOGSEVERITY_INFO, cef_log_severity_t_LOGSEVERITY_WARNING, cef_string_t, cef_window_t,
 };
 
 #[repr(C)]
 pub struct DisplayHandler {
     display_handler: cef_display_handler_t,
     ref_count: AtomicUsize,
+    window: *mut cef_window_t,
 }
 
 impl DisplayHandler {
     pub fn inc_ref(&self) {
         self.ref_count.fetch_add(1, Ordering::SeqCst);
     }
+}
+
+unsafe extern "C" fn on_fullscreen_mode_change(
+    slf: *mut cef_display_handler_t,
+    _browser: *mut cef_browser_t,
+    fullscreen: i32,
+) {
+    let handler = slf as *mut DisplayHandler;
+    (*(*handler).window).set_fullscreen.expect("set_fullscreen exists")((*handler).window, fullscreen);
 }
 
 extern "C" fn on_console_message(
@@ -50,7 +60,7 @@ extern "C" fn on_console_message(
     1
 }
 
-pub fn allocate() -> *mut DisplayHandler {
+pub fn allocate(window: *mut cef_window_t) -> *mut DisplayHandler {
     let handler = DisplayHandler {
         display_handler: cef_display_handler_t {
             base: cef_base_ref_counted_t {
@@ -63,13 +73,14 @@ pub fn allocate() -> *mut DisplayHandler {
             on_address_change: None,
             on_title_change: None,
             on_favicon_urlchange: None,
-            on_fullscreen_mode_change: None,
+            on_fullscreen_mode_change: Some(on_fullscreen_mode_change),
             on_tooltip: None,
             on_status_message: None,
             on_console_message: Some(on_console_message),
             on_auto_resize: None,
             on_loading_progress_change: None,
         },
+        window,
         ref_count: AtomicUsize::new(1),
     };
 

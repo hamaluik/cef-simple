@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CEF Fullscreen Demo</title>
+    </head>
+    <body>
+        <script>
+            function toggleFullscreen() {
+                if(document.fullscreenElement === null) document.documentElement.requestFullscreen();
+                else document.exitFullscreen();
+            }
+        </script>
+        <a href="#" onclick="toggleFullscreen(); return false;">Click here</a> to go fullscreen.
+    </body>
+</html>
