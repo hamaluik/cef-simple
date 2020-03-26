@@ -31,6 +31,14 @@ unsafe extern "C" fn on_fullscreen_mode_change(
     (*(*handler).window).set_fullscreen.expect("set_fullscreen exists")((*handler).window, fullscreen);
 }
 
+unsafe extern "C" fn on_tooltip(
+    _slf: *mut cef_display_handler_t,
+    _browser: *mut cef_browser_t,
+    _text: *mut cef_string_t,
+) -> i32 {
+    1
+}
+
 extern "C" fn on_console_message(
     _slf: *mut cef_display_handler_t,
     _browser: *mut cef_browser_t,
@@ -74,7 +82,7 @@ pub fn allocate(window: *mut cef_window_t) -> *mut DisplayHandler {
             on_title_change: None,
             on_favicon_urlchange: None,
             on_fullscreen_mode_change: Some(on_fullscreen_mode_change),
-            on_tooltip: None,
+            on_tooltip: Some(on_tooltip),
             on_status_message: None,
             on_console_message: Some(on_console_message),
             on_auto_resize: None,
