@@ -183,6 +183,7 @@ unsafe extern "C" fn on_process_message_received(
         else {
             "".to_owned()
         };
+        log::debug!("{} with title: “{}”; initial_file_name “{}”; filter: “{}”", message_name, title, initial_file_name, filter);
 
         super::browser::run_file_dialog(
             browser,
