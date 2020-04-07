@@ -170,7 +170,7 @@ unsafe extern "C" fn on_process_message_received(
         // get the filter
         let cef_filter: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 2);
-        let filter: String = if cef_filter == std::ptr::null_mut() {
+        let filter: String = if cef_filter != std::ptr::null_mut() {
             let chars: *mut u16 = (*cef_filter).str;
             let len: usize = (*cef_filter).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);

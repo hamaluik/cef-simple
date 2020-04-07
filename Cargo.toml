@@ -1,6 +1,6 @@
 [package]
 name = "cef-simple"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Kenton Hamaluik <kenton@rehabtronics.com>"]
 edition = "2018"
 build = "build.rs"
