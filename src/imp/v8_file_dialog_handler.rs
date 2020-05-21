@@ -8,6 +8,7 @@ use super::bindings::{
     cef_v8context_get_current_context, cef_process_message_t, cef_v8value_create_string
 };
 
+#[derive(Debug)]
 pub enum FileDialogMode {
     Open,
     Save,
@@ -85,10 +86,12 @@ unsafe fn on_file_dialog_done(slf: *mut V8FileDialogHandler, path: Option<*const
             // store the path as a string in v8
             let v8_path = cef_v8value_create_string(path);
             // and call success, with a single argument that is the path!
+            log::debug!("successfully ran file dialog!");
             ((*on_success).execute_function.expect("execute_function is a function"))(on_success, std::ptr::null_mut(), 1, &v8_path);
         }
         else {
             // if the path was None, the user cancelled; report that as an error to JS
+            log::debug!("user cancelled file dialog!");
             ((*on_error).execute_function.expect("execute_function is a function"))(on_error, std::ptr::null_mut(), 0, std::ptr::null_mut());
         }
 
@@ -171,6 +174,7 @@ unsafe extern "C" fn execute(
 
         // now send an IPC message to the frame process telling it to print
         let _self = slf as *mut V8FileDialogHandler;
+        log::debug!("{} called from JS", name);
         if let Some(frame) = (*_self).frame {
             // convert the message name to a CEF string
             let mut cef_message_name = cef_string_t::default();

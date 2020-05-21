@@ -64,7 +64,7 @@ pub unsafe fn run_file_dialog(
     filter: String,
     on_done: Option<Box<dyn FnMut(Option<std::path::PathBuf>)>>,
 ) {
-    log::debug!("launching file dialog...");
+    log::debug!("launching file dialog in mode `{:?}`...", mode);
 
     // get our browser host
     let host = (*browser).get_host.unwrap()(browser);

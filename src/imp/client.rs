@@ -196,7 +196,7 @@ unsafe extern "C" fn on_process_message_received(
             initial_file_name,
             filter,
             Some(Box::from(move |path: Option<std::path::PathBuf>| {
-                log::debug!("client save callback");
+                log::debug!("client save callback, path: {:?}", path);
                 // now send an IPC message back to the renderer
                 // convert the message name to a CEF string
                 let mut cef_message_name = cef_string_t::default();
@@ -231,6 +231,7 @@ unsafe extern "C" fn on_process_message_received(
                 }
 
                 // and finally send the message
+                log::debug!("returning path to JS...");
                 ((*frame)
                     .send_process_message
                     .expect("send_process_message is a function"))(

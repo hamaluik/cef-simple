@@ -31,7 +31,7 @@ unsafe extern "C" fn on_file_dialog_dismissed(slf: *mut _cef_run_file_dialog_cal
                 return;
             }
 
-            // cover the path into a Rust string
+            // convert the path into a Rust string
             let chars: *mut u16 = (*cef_path).str;
             let len: usize = (*cef_path).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
@@ -41,6 +41,7 @@ unsafe extern "C" fn on_file_dialog_dismissed(slf: *mut _cef_run_file_dialog_cal
             cef_string_userfree_utf16_free(cef_path);
 
             // and alert our listener
+            log::debug!("file dialog complete, path: {}", path);
             on_done(Some(std::path::PathBuf::from(path)));
         }
     }

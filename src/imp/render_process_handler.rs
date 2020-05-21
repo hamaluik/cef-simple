@@ -57,6 +57,7 @@ unsafe extern "C" fn on_process_message_received(
         .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
         .collect::<String>();
     cef_string_userfree_utf16_free(cef_message_name);
+    log::debug!("renderer received message: {}", message_name);
 
     let _self = slf as *mut RenderProcessHandler;
     if super::v8_pdf_print_handler::process_message(

@@ -8,8 +8,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         LevelFilter::Trace,
         Config::default(),
         TerminalMode::Mixed,
-    )
-    .unwrap()])
+    )])
     .unwrap();
 
     let page = urlencoding::encode(include_str!("page.html"));
