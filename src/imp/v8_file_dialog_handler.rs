@@ -64,6 +64,7 @@ pub unsafe fn process_message(slf: *mut V8FileDialogHandler, message_name: &str,
         return false;
     }
 
+    log::debug!("processing returned message");
     let args = ((*message).get_argument_list.expect("get_argument_list is a function"))(message);
     let size = (*args).get_size.expect("get_size is a function")(args);
     if size < 1 {
@@ -79,6 +80,7 @@ pub unsafe fn process_message(slf: *mut V8FileDialogHandler, message_name: &str,
 }
 
 unsafe fn on_file_dialog_done(slf: *mut V8FileDialogHandler, path: Option<*const cef_string_t>) {
+    log::debug!("file dialog done");
     if let Some((context, on_success, on_error)) = (*slf).done_callback {
         ((*context).enter.expect("enter is a function"))(context);
 
@@ -120,6 +122,7 @@ unsafe extern "C" fn execute(
         .map(|r| r.unwrap_or(std::char::REPLACEMENT_CHARACTER))
         .collect::<String>();
 
+    log::debug!("native call to function: {} with {} arguments", name, arguments_count);
     if (name == "saveFileDialog" || name == "openFileDialog") && arguments_count == 5 {
         // get the title argument
         let arg_title: *mut cef_v8value_t = *arguments.offset(0);
@@ -172,6 +175,8 @@ unsafe extern "C" fn execute(
         };
         let cef_filter: cef_string_userfree_t = ((*arg_filter).get_string_value.expect("get_string_value is a function"))(arg_filter);
 
+        log::debug!("exctracted arguments...");
+
         // now send an IPC message to the frame process telling it to print
         let _self = slf as *mut V8FileDialogHandler;
         log::debug!("{} called from JS", name);
@@ -185,10 +190,12 @@ unsafe extern "C" fn execute(
             };
             let message_name = std::ffi::CString::new(message_name).unwrap();
             super::bindings::cef_string_utf8_to_utf16(message_name.as_ptr(), message_name.to_bytes().len() as u64, &mut cef_message_name);
+            log::debug!("generated message name");
 
             // store our callback to onDone
             let context = cef_v8context_get_current_context();
             (*_self).done_callback = Some((context, arg_on_done, arg_on_error));
+            log::debug!("stored done callback");
 
             // build the message
             let message = super::bindings::cef_process_message_create(&cef_message_name);
@@ -197,9 +204,11 @@ unsafe extern "C" fn execute(
             ((*args).set_string.expect("set_string is a function"))(args, 0, cef_title);
             ((*args).set_string.expect("set_string is a function"))(args, 1, cef_file_name);
             ((*args).set_string.expect("set_string is a function"))(args, 2, cef_filter);
+            log::debug!("built IPC message");
 
             // send the message
             ((*frame).send_process_message.expect("send_process_message is a function"))(frame, super::bindings::cef_process_id_t_PID_BROWSER, message);
+            log::debug!("sent IPC message");
         }
         else {
             log::error!("frame isn't set!");

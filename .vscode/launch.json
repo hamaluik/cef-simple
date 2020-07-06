@@ -1,0 +1,175 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'cef-simple'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "cef-simple",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'file-dialogs'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=file-dialogs",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "file-dialogs",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'file-dialogs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=file-dialogs",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "file-dialogs",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'fullscreen'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=fullscreen",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "fullscreen",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'fullscreen'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=fullscreen",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "fullscreen",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'printing'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=printing",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "printing",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'printing'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=printing",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "printing",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'simple'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=simple",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "simple",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'simple'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=simple",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "simple",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

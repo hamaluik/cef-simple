@@ -76,6 +76,7 @@ unsafe extern "C" fn on_process_message_received(
 
     log::debug!("browser process recieved `{}` message", message_name);
     if message_name == "print_to_pdf" {
+        log::debug!("print to pdf message!");
         // get the path
         let args = ((*message)
             .get_argument_list
@@ -185,6 +186,7 @@ unsafe extern "C" fn on_process_message_received(
         };
         log::debug!("{} with title: “{}”; initial_file_name “{}”; filter: “{}”", message_name, title, initial_file_name, filter);
 
+        log::debug!("title: {}, initial file name: {}, filter: {}", title, initial_file_name, filter);
         super::browser::run_file_dialog(
             browser,
             match message_name.as_ref() {
@@ -244,6 +246,7 @@ unsafe extern "C" fn on_process_message_received(
 
         1
     } else {
+        log::debug!("unhandled IPC message: {}", message_name);
         0
     }
 }
