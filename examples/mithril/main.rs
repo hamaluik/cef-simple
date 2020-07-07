@@ -2,8 +2,6 @@ use cef_simple::{Cef, WindowOptions};
 use simplelog::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cef = Cef::initialize(Some(8000), false)?;
-
     CombinedLogger::init(vec![TermLogger::new(
         LevelFilter::Trace,
         Config::default(),
@@ -11,11 +9,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )])
     .unwrap();
 
-    let page = urlencoding::encode(include_str!("page.html"));
+    let cef = Cef::initialize(Some(8000), false)?;
+
+    let page = urlencoding::encode(include_str!("index.html"));
 
     cef.open_window(WindowOptions {
         url: format!("data:text/html,{}", page),
-        title: Some("CEF Simple—File Dialogs Demo".to_string()),
+        title: Some("CEF Mithril Demo".to_string()),
         window_icon: Some(include_bytes!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/icon.png"

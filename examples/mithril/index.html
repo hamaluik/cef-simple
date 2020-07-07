@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>CEF Mithril Demo</title>
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                position: relative;
+                background: #ccc;
+            }
+
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .background {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 0;
+            }
+            .content {
+                background: white;
+                border-radius: 0.5em;
+                z-index: 999;
+                width: 80%;
+                height: 80%;
+                margin: 0;
+                padding: 0;
+            }
+            iframe {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://unpkg.com/mithril/mithril.js"></script>
+        <script>
+            var showFrame = false;
+            var Frame = {
+                view: function(vnode) {
+                    if(!showFrame) return null;
+                    return [
+                        m(".modal", [
+                            m(".background", {
+                                onclick: function() { showFrame = false; }
+                            }),
+                            m(".content", [
+                                m("iframe", { src: "https://blog.hamaluik.ca/" })
+                            ])
+                        ])
+                    ];
+                }
+            };
+
+            var Hello = {
+                oninit: function(vnode) {
+                    vnode.state.count = 0;
+                },
+                view: function(vnode) {
+                    return [
+                        m("h1", "Mithril Demo"),
+                        m("button", { onclick: function() { vnode.state.count++ } }, vnode.state.count + " clicks"),
+                        m("button", { onclick: function() { showFrame = true; } }, "Help"),
+                        m("button", { onclick: function() { cef.saveFileDialog("Save", null, "Text Files|.txt"); } }, "Save"),
+                        m(Frame),
+                    ];
+                }
+            };
+            m.mount(document.body, Hello);
+        </script>
+    </body>
+</html>
