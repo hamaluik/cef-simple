@@ -61,7 +61,7 @@ unsafe extern "C" fn on_process_message_received(
 ) -> c_int {
     let cef_message_name: cef_string_userfree_t =
         ((*message).get_name.expect("get_name is a function"))(message);
-    let chars: *mut u16 = (*cef_message_name).str;
+    let chars: *mut u16 = (*cef_message_name).str_;
     let len: usize = (*cef_message_name).length as usize;
     let chars = std::slice::from_raw_parts(chars, len);
     let message_name = std::char::decode_utf16(chars.iter().cloned())

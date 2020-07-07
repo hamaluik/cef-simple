@@ -144,7 +144,7 @@ unsafe extern "C" fn execute(
     _exception: *mut cef_string_t,
 ) -> c_int {
     // get the name of the function
-    let chars: *mut u16 = (*name).str;
+    let chars: *mut u16 = (*name).str_;
     let len: usize = (*name).length as usize;
     let chars = std::slice::from_raw_parts(chars, len);
     let name = std::char::decode_utf16(chars.iter().cloned())
