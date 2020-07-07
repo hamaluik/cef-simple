@@ -123,6 +123,7 @@ fn main() {
                 .whitelist_function("cef_browser_host_create_browser_sync")
                 .whitelist_var("cef_log_severity_t_LOGSEVERITY_INFO")
                 .whitelist_type("cef_print_handler_t")
+                .whitelist_type("cef_command_line_t")
                 .generate()
                 .expect("Unable to generate bindings");
             let bindings = bindings.to_string();

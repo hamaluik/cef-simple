@@ -50,7 +50,7 @@ extern "C" fn on_console_message(
     _source: *const cef_string_t,
     _line: i32,
 ) -> i32 {
-    let chars: *mut u16 = unsafe { (*message).str_ };
+    let chars: *mut u16 = unsafe { (*message).str };
     let len: usize = unsafe { (*message).length } as usize;
     let chars = unsafe { std::slice::from_raw_parts(chars, len) };
     let message = std::char::decode_utf16(chars.iter().cloned())

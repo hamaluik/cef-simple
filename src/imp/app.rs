@@ -3,6 +3,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
     cef_app_t, cef_base_ref_counted_t, cef_browser_process_handler_t, cef_render_process_handler_t,
+    cef_string_t, cef_command_line_t,
 };
 use super::browser_process_handler::{self, BrowserProcessHandler};
 use super::render_process_handler::{self, RenderProcessHandler};
@@ -19,6 +20,24 @@ impl App {
     pub fn inc_ref(&self) {
         self.ref_count.fetch_add(1, Ordering::SeqCst);
     }
+}
+
+unsafe extern "C" fn on_before_command_line_processing(
+    _slf: *mut cef_app_t,
+    _process_type: *const cef_string_t,
+    command_line: *mut cef_command_line_t
+) {
+    // append this command line switch to get the on-screen-keyboard working
+    let mut cef_disable_usb_kb_detect = cef_string_t::default();
+    let disable_usb_kb_detect = "disable-usb-keyboard-detect".as_bytes();
+    let disable_usb_kb_detect = std::ffi::CString::new(disable_usb_kb_detect).unwrap();
+    super::bindings::cef_string_utf8_to_utf16(
+        disable_usb_kb_detect.as_ptr(),
+        disable_usb_kb_detect.to_bytes().len() as u64,
+        &mut cef_disable_usb_kb_detect,
+    );
+
+    (*command_line).append_switch.expect("append_switch is a function")(command_line, &cef_disable_usb_kb_detect);
 }
 
 extern "C" fn get_browser_process_handler(
@@ -47,7 +66,7 @@ pub fn allocate() -> *mut App {
                 has_one_ref: Some(has_one_ref),
                 has_at_least_one_ref: Some(has_at_least_one_ref),
             },
-            on_before_command_line_processing: None,
+            on_before_command_line_processing: Some(on_before_command_line_processing),
             on_register_custom_schemes: None,
             get_resource_bundle_handler: None,
             get_browser_process_handler: Some(get_browser_process_handler),
