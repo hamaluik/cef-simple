@@ -66,7 +66,7 @@ unsafe extern "C" fn on_process_message_received(
 ) -> c_int {
     let cef_message_name: cef_string_userfree_t =
         ((*message).get_name.expect("get_name is a function"))(message);
-    let chars: *mut u16 = (*cef_message_name).str;
+    let chars: *mut u16 = (*cef_message_name).str_;
     let len: usize = (*cef_message_name).length as usize;
     let chars = std::slice::from_raw_parts(chars, len);
     let message_name = std::char::decode_utf16(chars.iter().cloned())
@@ -83,7 +83,7 @@ unsafe extern "C" fn on_process_message_received(
             .expect("get_argument_list is a function"))(message);
         let cef_path: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 0);
-        let chars: *mut u16 = (*cef_path).str;
+        let chars: *mut u16 = (*cef_path).str_;
         let len: usize = (*cef_path).length as usize;
         let chars = std::slice::from_raw_parts(chars, len);
         let path = std::char::decode_utf16(chars.iter().cloned())
@@ -138,7 +138,7 @@ unsafe extern "C" fn on_process_message_received(
         let cef_title: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 0);
         let title: String = if cef_title == std::ptr::null_mut() {
-            let chars: *mut u16 = (*cef_title).str;
+            let chars: *mut u16 = (*cef_title).str_;
             let len: usize = (*cef_title).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
             let title = std::char::decode_utf16(chars.iter().cloned())
@@ -156,7 +156,7 @@ unsafe extern "C" fn on_process_message_received(
         let initial_file_name: String = if cef_initial_file_name == std::ptr::null_mut() {
             "".to_owned()
         } else {
-            let chars: *mut u16 = (*cef_initial_file_name).str;
+            let chars: *mut u16 = (*cef_initial_file_name).str_;
             let len: usize = (*cef_initial_file_name).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
             let initial_file_name = std::char::decode_utf16(chars.iter().cloned())
@@ -170,7 +170,7 @@ unsafe extern "C" fn on_process_message_received(
         let cef_filter: cef_string_userfree_t =
             ((*args).get_string.expect("get_string is a function"))(args, 2);
         let filter: String = if cef_filter != std::ptr::null_mut() {
-            let chars: *mut u16 = (*cef_filter).str;
+            let chars: *mut u16 = (*cef_filter).str_;
             let len: usize = (*cef_filter).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
             let filter = std::char::decode_utf16(chars.iter().cloned())

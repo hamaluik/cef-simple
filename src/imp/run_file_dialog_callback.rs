@@ -35,7 +35,7 @@ unsafe extern "C" fn on_file_dialog_dismissed(
             }
 
             // convert the path into a Rust string
-            let chars: *mut u16 = (*cef_path).str;
+            let chars: *mut u16 = (*cef_path).str_;
             let len: usize = (*cef_path).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
             let path = std::char::decode_utf16(chars.iter().cloned())
