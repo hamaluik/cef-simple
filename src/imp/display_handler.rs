@@ -6,7 +6,8 @@ use super::bindings::{
     cef_base_ref_counted_t, cef_browser_t, cef_display_handler_t, cef_log_severity_t,
     cef_log_severity_t_LOGSEVERITY_DEBUG, cef_log_severity_t_LOGSEVERITY_DEFAULT,
     cef_log_severity_t_LOGSEVERITY_ERROR, cef_log_severity_t_LOGSEVERITY_FATAL,
-    cef_log_severity_t_LOGSEVERITY_INFO, cef_log_severity_t_LOGSEVERITY_WARNING, cef_string_t, cef_window_t,
+    cef_log_severity_t_LOGSEVERITY_INFO, cef_log_severity_t_LOGSEVERITY_WARNING, cef_string_t,
+    cef_window_t,
 };
 
 #[repr(C)]
@@ -28,7 +29,9 @@ unsafe extern "C" fn on_fullscreen_mode_change(
     fullscreen: i32,
 ) {
     let handler = slf as *mut DisplayHandler;
-    (*(*handler).window).set_fullscreen.expect("set_fullscreen exists")((*handler).window, fullscreen);
+    (*(*handler).window)
+        .set_fullscreen
+        .expect("set_fullscreen exists")((*handler).window, fullscreen);
 }
 
 unsafe extern "C" fn on_tooltip(

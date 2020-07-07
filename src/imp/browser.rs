@@ -112,8 +112,12 @@ pub unsafe fn run_file_dialog(
         .expect("run_file_dialog is a function")(
         host,
         match mode {
-            super::v8_file_dialog_handler::FileDialogMode::Open => super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_OPEN,
-            super::v8_file_dialog_handler::FileDialogMode::Save => super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_SAVE,
+            super::v8_file_dialog_handler::FileDialogMode::Open => {
+                super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_OPEN
+            }
+            super::v8_file_dialog_handler::FileDialogMode::Save => {
+                super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_SAVE
+            }
         },
         &cef_title,
         &cef_initial_file_name,

@@ -100,6 +100,43 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug example 'mithril'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=mithril",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "mithril",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'mithril'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=mithril",
+                    "--package=cef-simple"
+                ],
+                "filter": {
+                    "name": "mithril",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug example 'printing'",
             "cargo": {
                 "args": [

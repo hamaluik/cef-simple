@@ -10,14 +10,13 @@ fn main() {
     };
     println!("cargo:rustc-link-lib={}", cef_lib_name);
 
-    let cef_path: Result<PathBuf, _> = env::var("CEF_PATH")
-        .map(From::from);
-    
+    let cef_path: Result<PathBuf, _> = env::var("CEF_PATH").map(From::from);
+
     if let Ok(cef_path) = cef_path {
         let cef_lib_path = cef_path.join("Release");
         assert!(cef_path.exists());
         println!("cargo:rustc-link-search={}", cef_lib_path.display());
-    
+
         // since CEF is a C / C++ library we need bindings for it
         // let's generate those now if they don't already exist in our source tree
         let bindings_path = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
@@ -127,10 +126,11 @@ fn main() {
                 .generate()
                 .expect("Unable to generate bindings");
             let bindings = bindings.to_string();
-    
+
             use std::io::prelude::*;
             use std::io::BufWriter;
-            let file = std::fs::File::create(&bindings_path).expect("couldn't create bindings file!");
+            let file =
+                std::fs::File::create(&bindings_path).expect("couldn't create bindings file!");
             let mut writer = BufWriter::new(file);
             // disable warnings and lints on the bindings file so we don't
             // get barraged by it when we run lints / fmts
@@ -150,8 +150,7 @@ fn main() {
                 .write_all(&bindings.as_bytes())
                 .expect("failed to write bindings!");
         }
-    }
-    else {
+    } else {
         eprintln!("environment variable CEF_PATH should point to the CEF distribution");
     }
 }

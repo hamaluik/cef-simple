@@ -7,8 +7,8 @@ use super::bindings::{
     cef_base_ref_counted_t, cef_browser_settings_t, cef_browser_view_create,
     cef_browser_view_delegate_t, cef_client_t, cef_dictionary_value_create, cef_image_create,
     cef_image_t, cef_panel_delegate_t, cef_panel_t, cef_request_context_get_global_context,
-    cef_size_t, cef_state_t_STATE_DISABLED, cef_state_t_STATE_ENABLED, cef_string_t, cef_string_utf8_to_utf16,
-    cef_view_delegate_t, cef_view_t, cef_window_delegate_t, cef_window_t,
+    cef_size_t, cef_state_t_STATE_DISABLED, cef_state_t_STATE_ENABLED, cef_string_t,
+    cef_string_utf8_to_utf16, cef_view_delegate_t, cef_view_t, cef_window_delegate_t, cef_window_t,
 };
 use super::{browser_view_delegate, client};
 

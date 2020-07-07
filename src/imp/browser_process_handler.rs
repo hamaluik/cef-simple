@@ -1,10 +1,8 @@
 use std::mem::size_of;
-use std::os::raw::{c_int};
+use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
-    cef_base_ref_counted_t, cef_browser_process_handler_t, cef_print_handler_t
-};
+use super::bindings::{cef_base_ref_counted_t, cef_browser_process_handler_t, cef_print_handler_t};
 use super::print_handler::{self, PrintHandler};
 
 #[repr(C)]
@@ -20,7 +18,9 @@ impl BrowserProcessHandler {
     }
 }
 
-unsafe extern "C" fn get_print_handler(slf: *mut cef_browser_process_handler_t) -> *mut cef_print_handler_t {
+unsafe extern "C" fn get_print_handler(
+    slf: *mut cef_browser_process_handler_t,
+) -> *mut cef_print_handler_t {
     let _self = slf as *mut BrowserProcessHandler;
     (*_self).print_handler as *mut cef_print_handler_t
 }

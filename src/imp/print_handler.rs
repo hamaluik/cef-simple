@@ -11,7 +11,10 @@ pub struct PrintHandler {
     ref_count: AtomicUsize,
 }
 
-unsafe extern "C" fn get_pdf_paper_size(_slf: *mut cef_print_handler_t, device_units_per_inch: c_int) -> cef_size_t {
+unsafe extern "C" fn get_pdf_paper_size(
+    _slf: *mut cef_print_handler_t,
+    device_units_per_inch: c_int,
+) -> cef_size_t {
     let mm_per_in = 25.4;
     // TODO: less hacky / hard-coded?
     let device_units_per_mm = (device_units_per_inch as f64) / mm_per_in;

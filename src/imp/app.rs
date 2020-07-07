@@ -1,7 +1,9 @@
 use std::mem::size_of;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{cef_app_t, cef_base_ref_counted_t, cef_browser_process_handler_t, cef_render_process_handler_t};
+use super::bindings::{
+    cef_app_t, cef_base_ref_counted_t, cef_browser_process_handler_t, cef_render_process_handler_t,
+};
 use super::browser_process_handler::{self, BrowserProcessHandler};
 use super::render_process_handler::{self, RenderProcessHandler};
 
@@ -19,7 +21,9 @@ impl App {
     }
 }
 
-extern "C" fn get_browser_process_handler(slf: *mut cef_app_t) -> *mut cef_browser_process_handler_t {
+extern "C" fn get_browser_process_handler(
+    slf: *mut cef_app_t,
+) -> *mut cef_browser_process_handler_t {
     let app = slf as *mut App;
     let handler = unsafe { (*app).browser_process_handler };
     unsafe { (*handler).inc_ref() };

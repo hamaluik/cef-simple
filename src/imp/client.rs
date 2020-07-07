@@ -146,8 +146,7 @@ unsafe extern "C" fn on_process_message_received(
                 .collect::<String>();
             cef_string_userfree_utf16_free(cef_title);
             title
-        }
-        else {
+        } else {
             "".to_owned()
         };
 
@@ -156,8 +155,7 @@ unsafe extern "C" fn on_process_message_received(
             ((*args).get_string.expect("get_string is a function"))(args, 1);
         let initial_file_name: String = if cef_initial_file_name == std::ptr::null_mut() {
             "".to_owned()
-        }
-        else {
+        } else {
             let chars: *mut u16 = (*cef_initial_file_name).str;
             let len: usize = (*cef_initial_file_name).length as usize;
             let chars = std::slice::from_raw_parts(chars, len);
@@ -180,19 +178,29 @@ unsafe extern "C" fn on_process_message_received(
                 .collect::<String>();
             cef_string_userfree_utf16_free(cef_filter);
             filter
-        }
-        else {
+        } else {
             "".to_owned()
         };
-        log::debug!("{} with title: “{}”; initial_file_name “{}”; filter: “{}”", message_name, title, initial_file_name, filter);
+        log::debug!(
+            "{} with title: “{}”; initial_file_name “{}”; filter: “{}”",
+            message_name,
+            title,
+            initial_file_name,
+            filter
+        );
 
-        log::debug!("title: {}, initial file name: {}, filter: {}", title, initial_file_name, filter);
+        log::debug!(
+            "title: {}, initial file name: {}, filter: {}",
+            title,
+            initial_file_name,
+            filter
+        );
         super::browser::run_file_dialog(
             browser,
             match message_name.as_ref() {
                 "open_file_dialog" => super::v8_file_dialog_handler::FileDialogMode::Open,
                 "save_file_dialog" => super::v8_file_dialog_handler::FileDialogMode::Save,
-                _ => unreachable!()
+                _ => unreachable!(),
             },
             title,
             initial_file_name,
