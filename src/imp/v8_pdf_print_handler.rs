@@ -3,7 +3,7 @@ use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
-    cef_base_ref_counted_t, cef_frame_t, cef_process_message_t, cef_string_t,
+    cef_base_ref_counted_t, cef_browser_t, cef_process_message_t, cef_string_t,
     cef_string_userfree_t, cef_string_userfree_utf16_free, cef_v8context_get_current_context,
     cef_v8context_t, cef_v8handler_t, cef_v8value_t, size_t,
 };
@@ -12,7 +12,7 @@ use super::bindings::{
 pub struct V8PDFPrintHandler {
     v8_handler: cef_v8handler_t,
     ref_count: AtomicUsize,
-    pub frame: Option<*mut cef_frame_t>,
+    pub browser: Option<*mut cef_browser_t>,
     pub done_callback: Option<(*mut cef_v8context_t, *mut cef_v8value_t, *mut cef_v8value_t)>,
 }
 
@@ -162,7 +162,11 @@ unsafe extern "C" fn execute(
 
         // now send an IPC message to the frame process telling it to print
         let _self = slf as *mut V8PDFPrintHandler;
-        if let Some(frame) = (*_self).frame {
+        if let Some(browser) = (*_self).browser {
+            let frame = (*browser)
+                .get_main_frame
+                .expect("get_main_frame is a function")(browser);
+
             // convert the message name to a CEF string
             let mut cef_message_name = cef_string_t::default();
             let message_name = "print_to_pdf".as_bytes();
@@ -194,7 +198,7 @@ unsafe extern "C" fn execute(
                 message,
             );
         } else {
-            log::error!("frame isn't set!");
+            log::error!("browser isn't set!");
         }
 
         cef_string_userfree_utf16_free(cef_path);
@@ -222,7 +226,7 @@ pub fn allocate() -> *mut V8PDFPrintHandler {
             execute: Some(execute),
         },
         ref_count: AtomicUsize::new(1),
-        frame: None,
+        browser: None,
         done_callback: None,
     };
 

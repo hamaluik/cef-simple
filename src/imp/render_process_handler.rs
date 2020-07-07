@@ -3,9 +3,9 @@ use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
-    cef_base_ref_counted_t, cef_browser_t, cef_frame_t, cef_process_id_t, cef_process_message_t,
-    cef_render_process_handler_t, cef_string_userfree_t, cef_string_userfree_utf16_free,
-    cef_v8context_t,
+    cef_base_ref_counted_t, cef_browser_t, cef_dictionary_value_t, cef_frame_t, cef_process_id_t,
+    cef_process_message_t, cef_render_process_handler_t, cef_string_userfree_t,
+    cef_string_userfree_utf16_free,
 };
 use super::v8_file_dialog_handler::{self, V8FileDialogHandler};
 use super::v8_pdf_print_handler::{self, V8PDFPrintHandler};
@@ -28,17 +28,28 @@ unsafe extern "C" fn on_web_kit_initialized(slf: *mut cef_render_process_handler
     let _self = slf as *mut RenderProcessHandler;
     super::v8_pdf_print_handler::register_extension((*_self).pdf_print_extension);
     super::v8_file_dialog_handler::register_extension((*_self).file_dialog_extension);
+    log::debug!("web kit initialized");
 }
 
-unsafe extern "C" fn on_context_created(
+unsafe extern "C" fn on_browser_created(
+    slf: *mut cef_render_process_handler_t,
+    browser: *mut cef_browser_t,
+    _extra_info: *mut cef_dictionary_value_t,
+) {
+    log::debug!("browser created");
+    let _self = slf as *mut RenderProcessHandler;
+    (*(*_self).pdf_print_extension).browser = Some(browser);
+    (*(*_self).file_dialog_extension).browser = Some(browser);
+}
+
+unsafe extern "C" fn on_browser_destroyed(
     slf: *mut cef_render_process_handler_t,
     _browser: *mut cef_browser_t,
-    frame: *mut cef_frame_t,
-    _context: *mut cef_v8context_t,
 ) {
+    log::debug!("browser destroyed");
     let _self = slf as *mut RenderProcessHandler;
-    (*(*_self).pdf_print_extension).frame = Some(frame);
-    (*(*_self).file_dialog_extension).frame = Some(frame);
+    (*(*_self).pdf_print_extension).browser = None;
+    (*(*_self).file_dialog_extension).browser = None;
 }
 
 unsafe extern "C" fn on_process_message_received(
@@ -90,10 +101,10 @@ pub fn allocate() -> *mut RenderProcessHandler {
             },
             on_render_thread_created: None,
             on_web_kit_initialized: Some(on_web_kit_initialized),
-            on_browser_created: None,
-            on_browser_destroyed: None,
+            on_browser_created: Some(on_browser_created),
+            on_browser_destroyed: Some(on_browser_destroyed),
             get_load_handler: None,
-            on_context_created: Some(on_context_created),
+            on_context_created: None,
             on_context_released: None,
             on_uncaught_exception: None,
             on_focused_node_changed: None,
