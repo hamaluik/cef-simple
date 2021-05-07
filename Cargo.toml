@@ -1,6 +1,6 @@
 [package]
 name = "cef-simple"
-version = "0.3.6"
+version = "0.3.7"
 authors = ["Kenton Hamaluik <kenton@rehabtronics.com>"]
 edition = "2018"
 build = "build.rs"
@@ -15,7 +15,7 @@ license = "MIT/Apache-2.0"
 log = "0.4"
 
 [build-dependencies]
-bindgen = "0.54"
+bindgen = "0.58"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["libloaderapi"] }
