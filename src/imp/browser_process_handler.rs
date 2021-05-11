@@ -2,14 +2,12 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{cef_base_ref_counted_t, cef_browser_process_handler_t, cef_print_handler_t};
-use super::print_handler::{self, PrintHandler};
+use super::bindings::{cef_base_ref_counted_t, cef_browser_process_handler_t, cef_client_t};
 
 #[repr(C)]
 pub struct BrowserProcessHandler {
     handler: cef_browser_process_handler_t,
     ref_count: AtomicUsize,
-    print_handler: *mut PrintHandler,
 }
 
 impl BrowserProcessHandler {
@@ -18,11 +16,10 @@ impl BrowserProcessHandler {
     }
 }
 
-unsafe extern "C" fn get_print_handler(
-    slf: *mut cef_browser_process_handler_t,
-) -> *mut cef_print_handler_t {
-    let _self = slf as *mut BrowserProcessHandler;
-    (*_self).print_handler as *mut cef_print_handler_t
+unsafe extern "C" fn get_default_client(
+    _slf: *mut cef_browser_process_handler_t,
+) -> *mut cef_client_t {
+    std::ptr::null_mut()
 }
 
 pub fn allocate() -> *mut BrowserProcessHandler {
@@ -37,12 +34,10 @@ pub fn allocate() -> *mut BrowserProcessHandler {
             },
             on_context_initialized: None,
             on_before_child_process_launch: None,
-            on_render_process_thread_created: None,
-            get_print_handler: Some(get_print_handler),
             on_schedule_message_pump_work: None,
+            get_default_client: Some(get_default_client),
         },
         ref_count: AtomicUsize::new(1),
-        print_handler: print_handler::allocate(),
     };
 
     Box::into_raw(Box::from(handler))
@@ -68,9 +63,8 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            let app: Box<BrowserProcessHandler> = Box::from_raw(browser_process_handler);
-            // TODO: free our handlers here too
-            Box::from_raw(app.print_handler);
+            Box::from_raw(browser_process_handler);
+            // TODO: free our handlers here too?
         }
         1
     } else {

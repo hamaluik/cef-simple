@@ -36,11 +36,13 @@ pub fn allocate() -> *mut BrowserViewDelegate {
                 on_child_view_changed: None,
                 on_focus: None,
                 on_blur: None,
+                on_window_changed: None,
             },
             on_browser_created: None,
             on_browser_destroyed: None,
             get_delegate_for_popup_browser_view: None,
             on_popup_browser_view_created: None,
+            get_chrome_toolbar_type: None,
         },
         ref_count: AtomicUsize::new(1),
     };

@@ -4,13 +4,14 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use super::bindings::{
     cef_base_ref_counted_t, cef_browser_t, cef_client_t, cef_context_menu_handler_t,
-    cef_display_handler_t, cef_frame_t, cef_life_span_handler_t, cef_process_id_t,
-    cef_process_message_t, cef_request_handler_t, cef_string_t, cef_string_userfree_t,
-    cef_string_userfree_utf16_free, cef_window_t,
+    cef_display_handler_t, cef_frame_t, cef_life_span_handler_t, cef_print_handler_t,
+    cef_process_id_t, cef_process_message_t, cef_request_handler_t, cef_string_t,
+    cef_string_userfree_t, cef_string_userfree_utf16_free, cef_window_t,
 };
 use super::context_menu_handler::{self, ContextMenuHandler};
 use super::display_handler::{self, DisplayHandler};
 use super::life_span_handler::{self, LifeSpanHandler};
+use super::print_handler::{self, PrintHandler};
 use super::request_handler::{self, RequestHandler};
 
 #[repr(C)]
@@ -21,6 +22,7 @@ pub struct Client {
     context_menu_handler: *mut ContextMenuHandler,
     request_handler: *mut RequestHandler,
     display_handler: *mut DisplayHandler,
+    print_handler: *mut PrintHandler,
 }
 
 impl Client {
@@ -55,6 +57,11 @@ extern "C" fn get_display_handler(slf: *mut cef_client_t) -> *mut cef_display_ha
     let handler = unsafe { (*client).display_handler };
     unsafe { (*handler).inc_ref() };
     handler as *mut cef_display_handler_t
+}
+
+unsafe extern "C" fn get_print_handler(slf: *mut cef_client_t) -> *mut cef_print_handler_t {
+    let _self = slf as *mut Client;
+    (*_self).print_handler as *mut cef_print_handler_t
 }
 
 unsafe extern "C" fn on_process_message_received(
@@ -283,12 +290,15 @@ pub fn allocate(window: *mut cef_window_t) -> *mut Client {
             get_render_handler: None,
             get_request_handler: Some(get_request_handler),
             on_process_message_received: Some(on_process_message_received),
+            get_audio_handler: None,
+            get_print_handler: Some(get_print_handler),
         },
         ref_count: AtomicUsize::new(1),
         life_span_handler: life_span_handler::allocate(),
         context_menu_handler: context_menu_handler::allocate(),
         request_handler: request_handler::allocate(),
         display_handler: display_handler::allocate(window),
+        print_handler: print_handler::allocate(),
     };
 
     Box::into_raw(Box::from(client))
@@ -307,8 +317,13 @@ extern "C" fn release(base: *mut cef_base_ref_counted_t) -> c_int {
 
     if count == 0 {
         unsafe {
-            Box::from_raw(client);
+            let app = Box::from_raw(client);
             // TODO: free our handlers here too?
+            Box::from_raw(app.life_span_handler);
+            Box::from_raw(app.context_menu_handler);
+            Box::from_raw(app.request_handler);
+            Box::from_raw(app.display_handler);
+            Box::from_raw(app.print_handler);
         }
         1
     } else {

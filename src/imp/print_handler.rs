@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{cef_base_ref_counted_t, cef_print_handler_t, cef_size_t};
+use super::bindings::{cef_base_ref_counted_t, cef_browser_t, cef_print_handler_t, cef_size_t};
 
 #[derive(Debug)]
 #[repr(C)]
@@ -13,6 +13,7 @@ pub struct PrintHandler {
 
 unsafe extern "C" fn get_pdf_paper_size(
     _slf: *mut cef_print_handler_t,
+    _browser: *mut cef_browser_t,
     device_units_per_inch: c_int,
 ) -> cef_size_t {
     let mm_per_in = 25.4;
