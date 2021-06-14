@@ -36,6 +36,10 @@ fn main() {
                 .derive_default(true)
                 .layout_tests(false)
                 .generate_comments(false)
+                .opaque_type("IMAGE_TLS_DIRECTORY64")
+                .opaque_type("_IMAGE_TLS_DIRECTORY64")
+                .no_default("MONITORINFOEXA")
+                .no_default("tagMONITORINFOEXA")
                 //.allowlist_recursively(true)
                 //// these are all the types / functions / vars that we need directly
                 //.allowlist_type("cef_app_t")
