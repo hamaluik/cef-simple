@@ -69,7 +69,17 @@ extern "C" fn can_minimize(_: *mut cef_window_delegate_t, _: *mut cef_window_t) 
     1
 }
 
-extern "C" fn can_close(_: *mut cef_window_delegate_t, _: *mut cef_window_t) -> c_int {
+unsafe extern "C" fn can_close(_: *mut cef_window_delegate_t, window: *mut cef_window_t) -> c_int {
+    let panel = &mut (*window).base;
+    let view = &mut (*panel).base;
+    let browser_view = view.as_browser_view.unwrap()(view);
+    let browser = (*browser_view).get_browser.unwrap()(browser_view);
+    if browser != std::ptr::null_mut() {
+        let host = (*browser).get_host.unwrap()(browser);
+        log::debug!("trying to close browser window");
+        return (*host).try_close_browser.unwrap()(host);
+    }
+
     1
 }
 
