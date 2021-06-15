@@ -9,6 +9,8 @@ use super::bindings::{
 #[repr(C)]
 pub struct LifeSpanHandler {
     life_span_handler: cef_life_span_handler_t,
+    browser_list: Vec<*mut cef_browser_t>,
+    is_closing: bool,
     ref_count: AtomicUsize,
 }
 
@@ -18,15 +20,45 @@ impl LifeSpanHandler {
     }
 }
 
-extern "C" fn do_close(_slf: *mut cef_life_span_handler_t, _browser: *mut cef_browser_t) -> c_int {
+unsafe extern "C" fn on_after_created(
+    slf: *mut cef_life_span_handler_t,
+    browser: *mut cef_browser_t,
+) {
+    let slf = slf as *mut LifeSpanHandler;
+    (*slf).browser_list.push(browser);
+}
+
+unsafe extern "C" fn do_close(
+    slf: *mut cef_life_span_handler_t,
+    _browser: *mut cef_browser_t,
+) -> c_int {
+    let slf = slf as *mut LifeSpanHandler;
+    if (*slf).browser_list.len() == 1 {
+        (*slf).is_closing = true;
+    }
+
     0
 }
 
 unsafe extern "C" fn on_before_close(
-    _slf: *mut cef_life_span_handler_t,
-    _browser: *mut cef_browser_t,
+    slf: *mut cef_life_span_handler_t,
+    browser: *mut cef_browser_t,
 ) {
-    cef_quit_message_loop();
+    let slf = slf as *mut LifeSpanHandler;
+    let index = (*slf).browser_list.iter().position(|x| {
+        let x = *x;
+        (*browser).is_same.unwrap()(x, browser) == 1
+    });
+    if let Some(index) = index {
+        (*slf).browser_list.remove(index);
+    }
+
+    if (*slf).browser_list.is_empty() {
+        log::debug!("browser list empty, quitting");
+        cef_quit_message_loop();
+    } else {
+        log::debug!("browser list not empty: {:?}", (*slf).browser_list);
+    }
 }
 
 pub fn allocate() -> *mut LifeSpanHandler {
@@ -40,10 +72,12 @@ pub fn allocate() -> *mut LifeSpanHandler {
                 has_at_least_one_ref: Some(has_at_least_one_ref),
             },
             on_before_popup: None,
-            on_after_created: None,
+            on_after_created: Some(on_after_created),
             do_close: Some(do_close),
             on_before_close: Some(on_before_close),
         },
+        browser_list: Vec::default(),
+        is_closing: false,
         ref_count: AtomicUsize::new(1),
     };
 
