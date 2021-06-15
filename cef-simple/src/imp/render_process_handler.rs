@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
+use cef_simple_sys::{
     cef_base_ref_counted_t, cef_browser_t, cef_dictionary_value_t, cef_frame_t, cef_process_id_t,
     cef_process_message_t, cef_render_process_handler_t, cef_string_userfree_t,
     cef_string_userfree_utf16_free,

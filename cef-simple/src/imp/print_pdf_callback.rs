@@ -1,4 +1,4 @@
-use super::bindings::{_cef_pdf_print_callback_t, cef_base_ref_counted_t, cef_string_t};
+use cef_simple_sys::{_cef_pdf_print_callback_t, cef_base_ref_counted_t, cef_string_t};
 use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};

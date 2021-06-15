@@ -1,4 +1,4 @@
-use super::bindings::{
+use cef_simple_sys::{
     _cef_run_file_dialog_callback_t, cef_base_ref_counted_t, cef_string_list_size,
     cef_string_list_t, cef_string_list_value, cef_string_userfree_t,
     cef_string_userfree_utf16_alloc, cef_string_userfree_utf16_free,

@@ -1,0 +1,8 @@
+[package]
+name = "cef-simple-sys"
+version = "90.0.0"
+edition = "2018"
+
+[build-dependencies]
+bindgen = "0.58"
+

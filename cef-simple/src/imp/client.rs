@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
+use cef_simple_sys::{
     cef_base_ref_counted_t, cef_browser_t, cef_client_t, cef_context_menu_handler_t,
     cef_display_handler_t, cef_frame_t, cef_life_span_handler_t, cef_print_handler_t,
     cef_process_id_t, cef_process_message_t, cef_request_handler_t, cef_string_t,
@@ -107,14 +107,14 @@ unsafe extern "C" fn on_process_message_received(
                 let mut cef_message_name = cef_string_t::default();
                 let message_name = "print_to_pdf_done".as_bytes();
                 let message_name = std::ffi::CString::new(message_name).unwrap();
-                super::bindings::cef_string_utf8_to_utf16(
+                cef_simple_sys::cef_string_utf8_to_utf16(
                     message_name.as_ptr(),
                     message_name.to_bytes().len() as u64,
                     &mut cef_message_name,
                 );
 
                 // build the message
-                let message = super::bindings::cef_process_message_create(&cef_message_name);
+                let message = cef_simple_sys::cef_process_message_create(&cef_message_name);
                 let args = ((*message)
                     .get_argument_list
                     .expect("get_argument_list is a function"))(message);
@@ -126,7 +126,7 @@ unsafe extern "C" fn on_process_message_received(
                     .send_process_message
                     .expect("send_process_message is a function"))(
                     frame,
-                    super::bindings::cef_process_id_t_PID_RENDERER,
+                    cef_simple_sys::cef_process_id_t_PID_RENDERER,
                     message,
                 );
             })),
@@ -219,14 +219,14 @@ unsafe extern "C" fn on_process_message_received(
                 let mut cef_message_name = cef_string_t::default();
                 let message_name = "run_file_dialog_done".as_bytes();
                 let message_name = std::ffi::CString::new(message_name).unwrap();
-                super::bindings::cef_string_utf8_to_utf16(
+                cef_simple_sys::cef_string_utf8_to_utf16(
                     message_name.as_ptr(),
                     message_name.to_bytes().len() as u64,
                     &mut cef_message_name,
                 );
 
                 // build the message
-                let message = super::bindings::cef_process_message_create(&cef_message_name);
+                let message = cef_simple_sys::cef_process_message_create(&cef_message_name);
                 let args = ((*message)
                     .get_argument_list
                     .expect("get_argument_list is a function"))(message);
@@ -237,7 +237,7 @@ unsafe extern "C" fn on_process_message_received(
                     let path = path.display().to_string();
                     let path = path.as_bytes();
                     let path = std::ffi::CString::new(path).unwrap();
-                    super::bindings::cef_string_utf8_to_utf16(
+                    cef_simple_sys::cef_string_utf8_to_utf16(
                         path.as_ptr(),
                         path.to_bytes().len() as u64,
                         &mut cef_path,
@@ -253,7 +253,7 @@ unsafe extern "C" fn on_process_message_received(
                     .send_process_message
                     .expect("send_process_message is a function"))(
                     frame,
-                    super::bindings::cef_process_id_t_PID_RENDERER,
+                    cef_simple_sys::cef_process_id_t_PID_RENDERER,
                     message,
                 );
             })),

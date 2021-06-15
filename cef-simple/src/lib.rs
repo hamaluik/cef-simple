@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::ptr::null_mut;
 
 mod imp;
-use imp::bindings::{
+use cef_simple_sys::{
     cef_app_t, cef_execute_process, cef_initialize, cef_log_severity_t_LOGSEVERITY_ERROR,
     cef_log_severity_t_LOGSEVERITY_INFO, cef_main_args_t, cef_run_message_loop, cef_settings_t,
     cef_shutdown, cef_window_create_top_level, cef_window_delegate_t,
@@ -71,7 +71,7 @@ impl Cef {
         let main_args = unsafe {
             cef_main_args_t {
                 instance: winapi::um::libloaderapi::GetModuleHandleA(null_mut())
-                    as imp::bindings::HINSTANCE,
+                    as cef_simple_sys::HINSTANCE,
             }
         };
 

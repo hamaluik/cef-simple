@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
+use cef_simple_sys::{
     cef_base_ref_counted_t, cef_browser_t, cef_context_menu_handler_t, cef_context_menu_params_t,
     cef_frame_t, cef_menu_model_t,
 };
@@ -28,7 +28,7 @@ extern "C" fn on_before_context_menu(
 ) {
     unsafe {
         (*model).clear.unwrap()(model);
-        //(*model).remove.unwrap()(model, super::bindings::cef_menu_id_t_MENU_ID_VIEW_SOURCE as i32);
+        //(*model).remove.unwrap()(model, cef_simple_sys::cef_menu_id_t_MENU_ID_VIEW_SOURCE as i32);
     }
 }
 

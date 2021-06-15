@@ -1,7 +1,7 @@
 use std::mem::size_of;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
+use cef_simple_sys::{
     cef_app_t, cef_base_ref_counted_t, cef_browser_process_handler_t, cef_render_process_handler_t,
     cef_string_t, cef_command_line_t,
 };
@@ -31,7 +31,7 @@ unsafe extern "C" fn on_before_command_line_processing(
     let mut cef_disable_usb_kb_detect = cef_string_t::default();
     let disable_usb_kb_detect = "disable-usb-keyboard-detect".as_bytes();
     let disable_usb_kb_detect = std::ffi::CString::new(disable_usb_kb_detect).unwrap();
-    super::bindings::cef_string_utf8_to_utf16(
+    cef_simple_sys::cef_string_utf8_to_utf16(
         disable_usb_kb_detect.as_ptr(),
         disable_usb_kb_detect.to_bytes().len() as u64,
         &mut cef_disable_usb_kb_detect,

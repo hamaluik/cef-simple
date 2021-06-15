@@ -1,0 +1,22 @@
+[package]
+name = "cef-simple"
+version = "0.3.8"
+authors = ["Kenton Hamaluik <kenton@rehabtronics.com>"]
+edition = "2018"
+description = "Small library / bindings for CEF in Rust"
+repository = "https://github.com/hamaluik/cef-simple"
+readme = "README.md"
+keywords = ["cef", "chromium"]
+categories = ["api-bindings", "external-ffi-bindings"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+log = "0.4"
+cef-simple-sys = { path = "../cef-simple-sys" }
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["libloaderapi"] }
+
+[dev-dependencies]
+simplelog = "0.10"
+urlencoding = "1.1"

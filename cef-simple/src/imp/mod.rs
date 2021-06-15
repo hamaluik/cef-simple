@@ -1,5 +1,4 @@
 pub mod app;
-pub mod bindings;
 pub mod browser;
 pub mod browser_process_handler;
 pub mod browser_view_delegate;

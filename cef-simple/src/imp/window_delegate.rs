@@ -3,7 +3,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{
+use cef_simple_sys::{
     cef_base_ref_counted_t, cef_browser_settings_t, cef_browser_view_create,
     cef_browser_view_delegate_t, cef_client_t, cef_dictionary_value_create, cef_image_create,
     cef_image_t, cef_panel_delegate_t, cef_panel_t, cef_request_context_get_global_context,

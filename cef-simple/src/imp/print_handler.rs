@@ -2,7 +2,7 @@ use std::mem::size_of;
 use std::os::raw::c_int;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use super::bindings::{cef_base_ref_counted_t, cef_browser_t, cef_print_handler_t, cef_size_t};
+use cef_simple_sys::{cef_base_ref_counted_t, cef_browser_t, cef_print_handler_t, cef_size_t};
 
 #[derive(Debug)]
 #[repr(C)]

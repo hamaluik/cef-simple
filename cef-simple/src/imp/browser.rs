@@ -1,4 +1,4 @@
-use super::bindings::{
+use cef_simple_sys::{
     cef_browser_t, cef_string_list_alloc, cef_string_list_append, cef_string_t,
     cef_string_utf8_to_utf16,
 };
@@ -27,7 +27,7 @@ pub unsafe fn print_to_pdf<P: AsRef<std::path::Path>>(
     // note: page size in microns, to get microns from inches, multiply
     // by 25400.
     // TODO: different paper sizes?
-    let settings = super::bindings::_cef_pdf_print_settings_t {
+    let settings = cef_simple_sys::_cef_pdf_print_settings_t {
         header_footer_title: cef_string_t::default(), // empty header / footer
         header_footer_url: cef_string_t::default(),   // empty url
         page_width: 210000,                           // 210 mm (a4 paper)
@@ -37,7 +37,7 @@ pub unsafe fn print_to_pdf<P: AsRef<std::path::Path>>(
         margin_right: 0,
         margin_bottom: 0,
         margin_left: 0,
-        margin_type: super::bindings::cef_pdf_print_margin_type_t_PDF_PRINT_MARGIN_DEFAULT, // default margins as defined by chrome, ~1 inch
+        margin_type: cef_simple_sys::cef_pdf_print_margin_type_t_PDF_PRINT_MARGIN_DEFAULT, // default margins as defined by chrome, ~1 inch
         header_footer_enabled: 0, // no headers or footers
         selection_only: 0,        // print everything
         landscape: 0,             // portrait mode
@@ -52,7 +52,7 @@ pub unsafe fn print_to_pdf<P: AsRef<std::path::Path>>(
         host,
         &mut cef_path,
         &settings,
-        callback as *mut super::bindings::_cef_pdf_print_callback_t,
+        callback as *mut cef_simple_sys::_cef_pdf_print_callback_t,
     );
 }
 
@@ -113,16 +113,16 @@ pub unsafe fn run_file_dialog(
         host,
         match mode {
             super::v8_file_dialog_handler::FileDialogMode::Open => {
-                super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_OPEN
+                cef_simple_sys::cef_file_dialog_mode_t_FILE_DIALOG_OPEN
             }
             super::v8_file_dialog_handler::FileDialogMode::Save => {
-                super::bindings::cef_file_dialog_mode_t_FILE_DIALOG_SAVE
+                cef_simple_sys::cef_file_dialog_mode_t_FILE_DIALOG_SAVE
             }
         },
         &cef_title,
         &cef_initial_file_name,
         filters,
         0,
-        callback as *mut super::bindings::_cef_run_file_dialog_callback_t,
+        callback as *mut cef_simple_sys::_cef_run_file_dialog_callback_t,
     );
 }
