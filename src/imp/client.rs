@@ -283,6 +283,7 @@ pub fn allocate(window: *mut cef_window_t) -> *mut Client {
             get_render_handler: None,
             get_request_handler: Some(get_request_handler),
             on_process_message_received: Some(on_process_message_received),
+            get_audio_handler: None,
         },
         ref_count: AtomicUsize::new(1),
         life_span_handler: life_span_handler::allocate(),

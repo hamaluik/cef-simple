@@ -90,6 +90,7 @@ pub fn allocate(window: *mut cef_window_t) -> *mut DisplayHandler {
             on_console_message: Some(on_console_message),
             on_auto_resize: None,
             on_loading_progress_change: None,
+            on_cursor_change: None,
         },
         window,
         ref_count: AtomicUsize::new(1),

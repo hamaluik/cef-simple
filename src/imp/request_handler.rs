@@ -37,6 +37,7 @@ pub fn allocate() -> *mut RequestHandler {
             on_plugin_crashed: None,
             on_render_view_ready: None,
             on_render_process_terminated: None,
+            on_document_available_in_main_frame: None,
         },
         ref_count: AtomicUsize::new(1),
     };

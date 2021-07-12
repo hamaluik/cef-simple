@@ -33,10 +33,10 @@ pub unsafe fn print_to_pdf<P: AsRef<std::path::Path>>(
         page_width: 210000,                           // 210 mm (a4 paper)
         page_height: 297000,                          // 297 mm (a4 paper)
         scale_factor: 100,                            // scale the page at 100% (i.e. don't.)
-        margin_top: 0.0, // margins in millimeters (actually ignored because of margin type)
-        margin_right: 0.0,
-        margin_bottom: 0.0,
-        margin_left: 0.0,
+        margin_top: 0, // margins in millimeters (actually ignored because of margin type)
+        margin_right: 0,
+        margin_bottom: 0,
+        margin_left: 0,
         margin_type: super::bindings::cef_pdf_print_margin_type_t_PDF_PRINT_MARGIN_DEFAULT, // default margins as defined by chrome, ~1 inch
         header_footer_enabled: 0, // no headers or footers
         selection_only: 0,        // print everything

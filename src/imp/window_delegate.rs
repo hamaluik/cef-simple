@@ -201,6 +201,7 @@ pub unsafe fn allocate(options: WindowOptions) -> *mut WindowDelegate {
             can_close: Some(can_close),
             on_accelerator: None,
             on_key_event: None,
+            get_initial_bounds: None,
         },
         ref_count: AtomicUsize::new(1),
         options,

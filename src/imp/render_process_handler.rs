@@ -99,7 +99,7 @@ pub fn allocate() -> *mut RenderProcessHandler {
                 has_one_ref: Some(has_one_ref),
                 has_at_least_one_ref: Some(has_at_least_one_ref),
             },
-            on_render_thread_created: None,
+            //on_render_thread_created: None,
             on_web_kit_initialized: Some(on_web_kit_initialized),
             on_browser_created: Some(on_browser_created),
             on_browser_destroyed: Some(on_browser_destroyed),
