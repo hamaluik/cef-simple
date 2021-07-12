@@ -36,7 +36,7 @@ unsafe extern "C" fn on_browser_created(
     browser: *mut cef_browser_t,
     _extra_info: *mut cef_dictionary_value_t,
 ) {
-    log::debug!("browser created");
+    log::trace!("on_browser_created");
     let _self = slf as *mut RenderProcessHandler;
     (*(*_self).pdf_print_extension).browser = Some(browser);
     (*(*_self).file_dialog_extension).browser = Some(browser);
@@ -46,7 +46,7 @@ unsafe extern "C" fn on_browser_destroyed(
     slf: *mut cef_render_process_handler_t,
     _browser: *mut cef_browser_t,
 ) {
-    log::debug!("browser destroyed");
+    log::trace!("on_browser_destroyed");
     let _self = slf as *mut RenderProcessHandler;
     (*(*_self).pdf_print_extension).browser = None;
     (*(*_self).file_dialog_extension).browser = None;
@@ -59,6 +59,7 @@ unsafe extern "C" fn on_process_message_received(
     _source_process: cef_process_id_t,
     message: *mut cef_process_message_t,
 ) -> c_int {
+    log::trace!("on_process_message_received");
     let cef_message_name: cef_string_userfree_t =
         ((*message).get_name.expect("get_name is a function"))(message);
     let chars: *mut u16 = (*cef_message_name).str_;

@@ -18,6 +18,7 @@ impl BrowserViewDelegate {
 }
 
 pub fn allocate() -> *mut BrowserViewDelegate {
+    log::trace!("BrowserViewDelegate::allocate");
     let browser_view = BrowserViewDelegate {
         browser_view_delegate: cef_browser_view_delegate_t {
             base: cef_view_delegate_t {

@@ -73,11 +73,19 @@ unsafe extern "C" fn can_close(_: *mut cef_window_delegate_t, window: *mut cef_w
     let panel = &mut (*window).base;
     let view = &mut (*panel).base;
     let browser_view = view.as_browser_view.unwrap()(view);
-    let browser = (*browser_view).get_browser.unwrap()(browser_view);
-    if browser != std::ptr::null_mut() {
-        let host = (*browser).get_host.unwrap()(browser);
-        log::debug!("trying to close browser window");
-        return (*host).try_close_browser.unwrap()(host);
+    if browser_view != std::ptr::null_mut() {
+        let browser = (*browser_view).get_browser.unwrap()(browser_view);
+        if browser != std::ptr::null_mut() {
+            let host = (*browser).get_host.unwrap()(browser);
+            log::debug!("trying to close browser window");
+            return (*host).try_close_browser.unwrap()(host);
+        }
+        else {
+            log::warn!("browser is not set");
+        }
+    }
+    else {
+        log::warn!("window delegate view is not a browser view");
     }
 
     1

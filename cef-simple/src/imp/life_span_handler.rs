@@ -24,6 +24,7 @@ unsafe extern "C" fn on_after_created(
     slf: *mut cef_life_span_handler_t,
     browser: *mut cef_browser_t,
 ) {
+    log::trace!("on_after_created");
     let slf = slf as *mut LifeSpanHandler;
     (*slf).browser_list.push(browser);
 }
@@ -32,6 +33,7 @@ unsafe extern "C" fn do_close(
     slf: *mut cef_life_span_handler_t,
     _browser: *mut cef_browser_t,
 ) -> c_int {
+    log::trace!("do_close");
     let slf = slf as *mut LifeSpanHandler;
     if (*slf).browser_list.len() == 1 {
         (*slf).is_closing = true;
@@ -44,6 +46,7 @@ unsafe extern "C" fn on_before_close(
     slf: *mut cef_life_span_handler_t,
     browser: *mut cef_browser_t,
 ) {
+    log::trace!("on_before_close");
     let slf = slf as *mut LifeSpanHandler;
     let index = (*slf).browser_list.iter().position(|x| {
         let x = *x;

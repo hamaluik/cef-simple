@@ -71,6 +71,7 @@ unsafe extern "C" fn on_process_message_received(
     _source_process: cef_process_id_t,
     message: *mut cef_process_message_t,
 ) -> c_int {
+    log::trace!("on_process_message_received");
     let cef_message_name: cef_string_userfree_t =
         ((*message).get_name.expect("get_name is a function"))(message);
     let chars: *mut u16 = (*cef_message_name).str_;
@@ -267,6 +268,7 @@ unsafe extern "C" fn on_process_message_received(
 }
 
 pub fn allocate(window: *mut cef_window_t) -> *mut Client {
+    log::trace!("Client::allocate");
     let client = Client {
         client: cef_client_t {
             base: cef_base_ref_counted_t {

@@ -27,6 +27,7 @@ unsafe extern "C" fn on_before_command_line_processing(
     _process_type: *const cef_string_t,
     command_line: *mut cef_command_line_t
 ) {
+    log::trace!("on_before_command_line_processing");
     // append this command line switch to get the on-screen-keyboard working
     let mut cef_disable_usb_kb_detect = cef_string_t::default();
     let disable_usb_kb_detect = "disable-usb-keyboard-detect".as_bytes();
@@ -43,6 +44,7 @@ unsafe extern "C" fn on_before_command_line_processing(
 extern "C" fn get_browser_process_handler(
     slf: *mut cef_app_t,
 ) -> *mut cef_browser_process_handler_t {
+    log::trace!("get_browser_process_handler");
     let app = slf as *mut App;
     let handler = unsafe { (*app).browser_process_handler };
     unsafe { (*handler).inc_ref() };
@@ -57,6 +59,7 @@ extern "C" fn get_render_process_handler(slf: *mut cef_app_t) -> *mut cef_render
 }
 
 pub fn allocate() -> *mut App {
+    log::trace!("app allocate");
     let app = App {
         app: cef_app_t {
             base: cef_base_ref_counted_t {

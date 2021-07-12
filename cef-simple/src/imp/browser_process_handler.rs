@@ -16,13 +16,19 @@ impl BrowserProcessHandler {
     }
 }
 
+unsafe extern "C" fn on_context_initialized(_slf: *mut cef_browser_process_handler_t) {
+    log::trace!("on_context_initialized");
+}
+
 unsafe extern "C" fn get_default_client(
     _slf: *mut cef_browser_process_handler_t,
 ) -> *mut cef_client_t {
+    log::trace!("get_default_client");
     std::ptr::null_mut()
 }
 
 pub fn allocate() -> *mut BrowserProcessHandler {
+    log::trace!("BrowserProcessHandler::allocate");
     let handler = BrowserProcessHandler {
         handler: cef_browser_process_handler_t {
             base: cef_base_ref_counted_t {
@@ -32,7 +38,7 @@ pub fn allocate() -> *mut BrowserProcessHandler {
                 has_one_ref: Some(has_one_ref),
                 has_at_least_one_ref: Some(has_at_least_one_ref),
             },
-            on_context_initialized: None,
+            on_context_initialized: Some(on_context_initialized),
             on_before_child_process_launch: None,
             on_schedule_message_pump_work: None,
             get_default_client: Some(get_default_client),

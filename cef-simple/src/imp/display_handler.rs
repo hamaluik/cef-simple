@@ -28,6 +28,7 @@ unsafe extern "C" fn on_fullscreen_mode_change(
     _browser: *mut cef_browser_t,
     fullscreen: i32,
 ) {
+    log::trace!("on_fullscreen_mode_change");
     let handler = slf as *mut DisplayHandler;
     (*(*handler).window)
         .set_fullscreen
@@ -39,6 +40,7 @@ unsafe extern "C" fn on_tooltip(
     _browser: *mut cef_browser_t,
     _text: *mut cef_string_t,
 ) -> i32 {
+    log::trace!("on_tooltip");
     1
 }
 
@@ -50,6 +52,7 @@ extern "C" fn on_console_message(
     _source: *const cef_string_t,
     _line: i32,
 ) -> i32 {
+    log::trace!("on_console_message");
     let chars: *mut u16 = unsafe { (*message).str_ };
     let len: usize = unsafe { (*message).length } as usize;
     let chars = unsafe { std::slice::from_raw_parts(chars, len) };

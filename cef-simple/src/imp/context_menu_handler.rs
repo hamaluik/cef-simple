@@ -26,6 +26,7 @@ extern "C" fn on_before_context_menu(
     _params: *mut cef_context_menu_params_t,
     model: *mut cef_menu_model_t,
 ) {
+    log::trace!("on_before_context_menu");
     unsafe {
         (*model).clear.unwrap()(model);
         //(*model).remove.unwrap()(model, cef_simple_sys::cef_menu_id_t_MENU_ID_VIEW_SOURCE as i32);
